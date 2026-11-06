@@ -4,6 +4,8 @@ A local prototype for the Airtel SYNC Enterprise Track A brief: business needs, 
 
 The redesigned frontend has a visible **Create account** entry, guided registration, a clearer business/service workspace and drag-and-drop document uploads. See [frontend and registration](docs/FRONTEND.md) for the interaction changes and keyboard/mobile checks.
 
+For teammate testing, fixes and final submission work, follow the [teammate acceptance checklist](docs/TEAMMATE_CHECKLIST.md). It covers every feature, expected results, live extraction/voice checks and the required handback evidence.
+
 Follow-up chat, account security, Hindi operations, partner/voice flows and the disabled WhatsApp guided channel are documented in [operations instructions](docs/OPERATIONS.md). See [synthetic business evidence](docs/BUSINESS_EVIDENCE.md) for reproducible segment analysis. [Submission drafts](submission/README.md) include the branded deck, architecture, one-page privacy PDF, controlled rehearsal and clean source archive.
 
 The [milestone plan](docs/MILESTONES.md) tracks implemented account/dashboard/voice work, remaining live checks, access-dependent WhatsApp integration and submission deliverables. Planned features are separate from the implemented milestones below.
