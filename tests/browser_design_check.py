@@ -93,10 +93,16 @@ def run():
                 page.click('#account-submit');expect(page.locator('dialog')).to_have_count(0)
                 # Sign out and register during document onboarding, preserving the selected estimate.
                 page.click('#account-toggle');page.click('#account-sign-out')
+                expect(page.locator('dialog')).to_have_count(0)
+                expect(page.locator('#create-account')).to_be_visible()
                 page.set_viewport_size({'width':1440,'height':1000})
                 page.select_option('[name=business_type]','clinic');page.select_option('[name=city_tier]','1')
                 page.fill('[name=employees]','5');page.select_option('[name=current_internet]','hotspot')
-                page.check('[name=needs][value=internet]');page.check('[name=needs][value=email]');page.click('#recommend-button')
+                page.check('[name=needs][value=internet]');page.check('[name=needs][value=email]')
+                expect(page.locator('[name=employees]')).to_have_value('5')
+                with page.expect_request('**/api/recommend') as recommendation:
+                    page.click('#recommend-button')
+                assert recommendation.value.post_data_json['profile']['employees']==5,recommendation.value.post_data_json['profile']
                 expect(page.locator('#quote-summary')).to_contain_text('1,624')
                 page.click('#check-quote');page.click('#continue-kyc')
                 expect(page.locator('.registration-context')).to_be_visible()
