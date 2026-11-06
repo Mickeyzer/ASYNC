@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest==9.0.2
+playwright==1.63.0
+pypdf==6.18.1

@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8010:8010"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      UDYAM_ALLOWED_HOSTS: localhost,127.0.0.1
+    volumes:
+      - udyam-runtime:/app/runtime
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+volumes:
+  udyam-runtime:

@@ -1,0 +1,18 @@
+{
+  "slides": 10,
+  "privacy_pages": 1,
+  "architecture_pages": 1,
+  "template": "Submission Template_Sync.pptx",
+  "status": "Reviewable draft; live-provider validation and final demo recording pending",
+  "pricing": {
+    "monthly": 1624,
+    "setup": 0,
+    "taxes": "excluded"
+  },
+  "sources": [
+    "smb_leads.csv",
+    "product_catalogue.csv",
+    "docs/PRIVACY.md",
+    "current application code"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "controlled_rehearsal",
+  "duration_seconds": 43.88,
+  "provider_calls": 0,
+  "extraction": "synthetic controlled fixtures",
+  "unexpected_browser_errors": [],
+  "live_demo_status": "Record a live-provider demo after image/voice validation; this file is explicitly a rehearsal."
+}

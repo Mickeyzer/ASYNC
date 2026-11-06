@@ -1,0 +1,64 @@
+{
+  "checks": [
+    {
+      "check": "frontend",
+      "status": "passed",
+      "seconds": 2.97
+    },
+    {
+      "check": "submission",
+      "status": "passed",
+      "seconds": 5.2
+    },
+    {
+      "check": "source_package",
+      "status": "passed",
+      "seconds": 1.56
+    },
+    {
+      "check": "backend",
+      "status": "passed",
+      "seconds": 39.95,
+      "tests_passed": 157
+    },
+    {
+      "check": "core_browser",
+      "status": "passed",
+      "seconds": 7.61,
+      "scenario_groups": 20
+    },
+    {
+      "check": "onboarding_browser",
+      "status": "passed",
+      "seconds": 6.42,
+      "scenario_groups": 12
+    },
+    {
+      "check": "operations_browser",
+      "status": "passed",
+      "seconds": 7.44,
+      "scenario_groups": 18
+    },
+    {
+      "check": "conversation_security_browser",
+      "status": "passed",
+      "seconds": 6.7,
+      "scenario_groups": 11
+    },
+    {
+      "check": "design_browser",
+      "status": "passed",
+      "seconds": 6.61,
+      "scenario_groups": 16
+    }
+  ],
+  "all_passed": true,
+  "provider_calls": "Controlled SDK/browser fixtures only; no live quality claim",
+  "pending_external_checks": [
+    "live image extraction and microphone/language quality",
+    "Docker image/runtime",
+    "hosted CI",
+    "live WhatsApp/provider setup"
+  ],
+  "scope": "Local synthetic-data prototype. No real payment, provisioning, public deployment or submission performed."
+}
