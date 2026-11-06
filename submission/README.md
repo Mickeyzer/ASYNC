@@ -1,15 +1,17 @@
 # Udyam Digital submission draft
 
-This folder contains reviewable local deliverables for Enterprise Track A. It has not been submitted or published.
+This folder contains reviewable local deliverables for Enterprise Track A. Draft files are shared in the private repository; nothing has been submitted to the competition. The current deck has seven slides including the cover, following the Unstop listing. Submit PDF and PowerPoint with the registered TeamName_CampusName filename. See docs/SUBMISSION_SOURCES.md for rules and competitive-analysis sources.
 
 | Artifact | Status |
 | --- | --- |
-| Udyam_Digital_Business_Case.pptx / .pdf | 10 slides, supplied branding, editable PowerPoint text; source numbers independently checked |
+| Udyam_Digital_Business_Case_7_Slides.pptx / .pdf | 7 slides including cover, supplied branding, editable PowerPoint text; source numbers independently checked |
 | Architecture.pdf / architecture.svg | One-page component/data-flow diagram |
 | Privacy_and_Security.pdf | Checked to be one page; describes implemented choices and limits |
 | demo-rehearsal.webm / demo-player.html | Captioned controlled rehearsal, under three minutes; zero live-provider calls |
 | Udyam_Digital_Source.zip | Clean source/student-data archive for repository preparation; private/runtime material excluded |
 | verification-report.json | Actual local check results; external gates separately listed |
+
+The older Udyam_Digital_Business_Case.pptx/.pdf files are superseded ten-slide drafts. Use the files with _7_Slides in the name for the current presentation.
 
 The video explicitly uses controlled advisor/extraction fixtures. It demonstrates the application workflow and real deterministic backend gates, not live Gemini accuracy or production activation. It is a rehearsal. Record the final live-provider demo after image/voice validation, retaining the simulation labels. The deck labels rollout targets and scenario savings as proposals rather than achieved results. Synthetic historical observations do not establish product uplift.
 

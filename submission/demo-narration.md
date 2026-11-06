@@ -2,6 +2,8 @@
 
 Use a clean synthetic customer account and four documents from the same applicant. Select the applicant after independent live validation, not from the judges-only pack. Do not claim that a failed or unclear applicant should pass. Keep the simulation banner visible.
 
+The supplied Udyam specimens have document/registry inconsistencies that prevent an unchanged passing set under the current rules. A separate, visibly labelled DEMO01 development set is available in `demo_documents/checkout/`; see its README and expected-field manifest. It matches the mock registries and passes deterministic checks. Uploading these images still uses the normal provider adapter. If you demonstrate it, identify it as a separately created synthetic fixture, and report live extraction only after actually testing it. Do not count this as a pass on K01-K12.
+
 | Time | Show | Explain |
 | --- | --- | --- |
 | 0:00-0:25 | Visible registration, business description and reviewed follow-up | Explain how a short reply updates the draft and retains reviewed facts. Hindi is available; demonstrate voice only on a verified device with separate consent. |

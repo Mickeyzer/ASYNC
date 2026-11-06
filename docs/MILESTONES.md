@@ -71,7 +71,7 @@ Measure end-to-end duration and bounded concurrent use, verify mobile Hindi/Engl
 
 ## 9. Submission and judging
 
-Prepare the code repository, architecture/data-flow diagram, business case of at most 10 slides, one-page privacy/security note and video of at most 3 minutes. Cover target segments, bundle value, partner role, rollout, risks and 3-5 business metrics with clearly labelled targets. Show the required advisor-to-tracker flow first, then the most useful stretch behavior. Rehearse from a clean setup and verify every submitted claim, link and file. Publishing/submitting is a separate external action.
+Prepare the code repository, architecture/data-flow diagram, business case of seven slides including the cover (Unstop listing; the case PDF gives a looser ten-slide cap), one-page privacy/security note and video of at most 3 minutes. Cover target segments, competitive analysis, bundle value, partner role, rollout, risks and 3-5 business metrics with clearly labelled targets. Show the required advisor-to-tracker flow first, then the most useful stretch behavior. Rehearse from a clean setup and verify every submitted claim, link and file. Publishing/submitting is a separate external action.
 
 **Complete when:** someone can reproduce the documented demo and the deliverables meet the brief's limits. Practice explanations of decisions, measured results, failures and simulated integrations before judging.
 

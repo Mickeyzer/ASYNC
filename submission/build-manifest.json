@@ -1,7 +1,9 @@
 {
-  "slides": 10,
+  "slides": 7,
   "privacy_pages": 1,
   "architecture_pages": 1,
+  "deck_pptx": "Udyam_Digital_Business_Case_7_Slides.pptx",
+  "deck_pdf": "Udyam_Digital_Business_Case_7_Slides.pdf",
   "template": "Submission Template_Sync.pptx",
   "status": "Reviewable draft; live-provider validation and final demo recording pending",
   "pricing": {
@@ -13,6 +15,7 @@
     "smb_leads.csv",
     "product_catalogue.csv",
     "docs/PRIVACY.md",
-    "current application code"
+    "current application code",
+    "docs/SUBMISSION_SOURCES.md"
   ]
 }

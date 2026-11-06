@@ -8,6 +8,8 @@ For teammate testing, fixes and final submission work, follow the [teammate acce
 
 Follow-up chat, account security, Hindi operations, partner/voice flows and the disabled WhatsApp guided channel are documented in [operations instructions](docs/OPERATIONS.md). See [synthetic business evidence](docs/BUSINESS_EVIDENCE.md) for reproducible segment analysis. [Submission drafts](submission/README.md) include the branded deck, architecture, one-page privacy PDF, controlled rehearsal and clean source archive.
 
+For a successful checkout test, use the [separately labelled DEMO01 development documents](demo_documents/checkout/README.md). They match the supplied mock registries; generation makes no provider calls, and live extraction still needs testing. The supplied K01-K12 files remain unchanged and contain Udyam inconsistencies or missing identifiers/documents that prevent an unchanged passing set under the current checks.
+
 The [milestone plan](docs/MILESTONES.md) tracks implemented account/dashboard/voice work, remaining live checks, access-dependent WhatsApp integration and submission deliverables. Planned features are separate from the implemented milestones below.
 
 ## Prerequisites

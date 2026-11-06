@@ -1,0 +1,65 @@
+{
+  "type": "separate_synthetic_development_fixtures",
+  "source": "Supplied fictional mock registries; not the original specimen image pack.",
+  "provider_calls": 0,
+  "live_extraction_status": "Not tested; upload normally through the application to test your configured provider.",
+  "expected_validation": "checks_passed",
+  "declaration": {
+    "business_name": "Harmony Dental Care",
+    "business_address": "Shop/Unit 199, Station Road, Kolkata, West Bengal - 347550",
+    "signatory_name": "Joseph Shah",
+    "confirmed": true
+  },
+  "reference_date": "2026-07-15",
+  "documents": [
+    {
+      "file": "DEMO01_gst_certificate.png",
+      "expected": {
+        "document_type": "gst_certificate",
+        "legibility": "clear",
+        "gstin": "19EOGXH4115Y1ZL",
+        "legal_name": "Joseph Shah (Prop. Harmony Dental Care)",
+        "business_name": "Harmony Dental Care",
+        "address": "Shop/Unit 199, Station Road, Kolkata, West Bengal - 347550",
+        "registration_date": "2022-04-17"
+      },
+      "sha256": "7a94f146a87589e61fe5dfdb41ec5f2753a00d06be1f10ae497893a0624c437d"
+    },
+    {
+      "file": "DEMO01_udyam_certificate.png",
+      "expected": {
+        "document_type": "udyam_certificate",
+        "legibility": "clear",
+        "udyam_number": "UDYAM-WB-00-5053330",
+        "business_name": "Harmony Dental Care",
+        "city": "Kolkata",
+        "state": "West Bengal",
+        "registration_date": "2022-09-27"
+      },
+      "sha256": "70ea21efce034f544e2fe880c553cf722bbb50df2f1dfefb7eff7f4442ffbf19"
+    },
+    {
+      "file": "DEMO01_signatory_id.png",
+      "expected": {
+        "document_type": "signatory_id",
+        "legibility": "clear",
+        "business_name": "Harmony Dental Care",
+        "signatory_name": "Joseph Shah",
+        "id_number": "SYN-ID-816907",
+        "expiry_date": "2028-09-10"
+      },
+      "sha256": "a018ffd16244dc01de8424adf266ec17932f10e7d4993476aad506719df17ef6"
+    },
+    {
+      "file": "DEMO01_address_proof.png",
+      "expected": {
+        "document_type": "address_proof",
+        "legibility": "clear",
+        "business_name": "Harmony Dental Care",
+        "address": "Shop/Unit 199, Station Road, Kolkata, West Bengal - 347550",
+        "issue_date": "2026-06-26"
+      },
+      "sha256": "de9b1a38b7bf57da18fe15dfd4da69359a4350fabeb8e2f5f01984f7023fb372"
+    }
+  ]
+}

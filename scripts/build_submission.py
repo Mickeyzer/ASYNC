@@ -35,55 +35,41 @@ def content():
       {'title':'Udyam Digital','lines':['From business needs to a tracked demo order',
         'Self-serve acquisition with people for the exceptions','Enterprise Track A | Synthetic-data prototype'],
        'source':'Working local prototype. Payments, availability and activation are simulated.'},
-      {'title':'Fix the quote drop first','lines':[
+      {'title':'Start where quote drop-off hurts','lines':[
         f"Only {evidence['activated']} of {evidence['leads']:,} supplied leads activated ({evidence['activation_rate']:.2%}).",
-        'Needs assessed: 1,974. Quote accepted: 861. That transition retains only 43.6%.',
-        f"Historical mean activation time: {evidence['average_days_to_activate']:.2f} days.",
-        f"Blended acquisition cost: INR {evidence['blended_acquisition_cost_inr']:,.0f} per activation.",
-        'Focus: explain the bundle, show every fee, finish documents and make status visible.'],
-       'source':'Source: supplied smb_leads.csv; brief Appendix A1. Synthetic historical observations.'},
-      {'title':'Start with professional offices','lines':[
-        f"{professional['leads']:,} leads; {professional['activated']} activations; {professional['activation_rate']:.2%} historical activation.",
-        f"Median activated bundle: INR {professional['median_monthly_bundle_inr']:,.0f}/month.",
-        'Clinics, CA firms and coaching centres need dependable internet, email and basic security.',
-        'Start with a narrow, assisted pilot; expand after measuring completion and service delivery.',
-        'Manufacturers have higher historical conversion but fewer observations and more complex delivery.'],
-       'source':'Source: supplied synthetic segment data. Prioritization is a proposed rollout choice, not proven optimal.'},
-      {'title':'A transparent, editable starter bundle','lines':[
-        'Example: Tier-1 clinic, five staff, one site; internet plus business email.',
-        'Biz Fibre 100: 1 x INR 999/month. Cloud Email: 5 x INR 125/month.',
-        f"Monthly total: INR {estimate['monthly_total']:,}. Setup: INR {estimate['setup_total']:,}. First month: INR {estimate['first_month_estimate']:,}.",
-        'Each service has a 12-month minimum contract. Taxes are excluded.',
-        'Owner changes quantities and add-ons; backend rechecks eligibility, dependencies and prices.'],
-       'source':'Source: live catalogue/quote code at build time. Demo minimum rates; not a real commercial offer.'},
-      {'title':'One journey, with reviewed decisions','lines':[
-        'Hindi/English text or reviewed voice; follow-up chat retains owner-reviewed answers.',
-        'Review structured needs, edit the catalogue bundle and inspect the estimate.',
-        'Sign in, consent to document extraction and review the masked fields.',
-        'Backend compares four documents with mock registries and checks consistency/dates.',
-        'Accept the demo terms, then follow the saved simulated order tracker.'],
-       'source':'Implemented local flow. Live image/microphone quality needs validation. Separate architecture diagram supplied.'},
-      {'title':'Fast processing must preserve trust','lines':[
-        'Separate consents for drafting, browser speech, document checks and partner follow-up.',
-        'Images never saved; raw extracted fields expire after 30 minutes or order submission.',
-        'Masked summaries, consent, estimates and orders expire after 24 hours.',
-        'Ownership, password changes, session revocation and staff disabling protect account access.',
-        'Review can confirm legibility only after original inspection. Hard failures still block checkout.'],
-       'source':'Decisions retain actor/reason/revision. Not compliance certification. Checks use the 15 July 2026 dataset calendar.'},
-      {'title':'Partners handle the exceptions','lines':[
-        'Owner requests help and separately consents to sharing a synthetic contact and summary.',
-        'Reviewer assigns a partner. Partners see only their assigned, consented tasks.',
-        'Explainable help priority highlights document issues and approaching record expiry.',
-        'Partner records resolution; owner resumes the same journey and can withdraw consent.',
-        'Acquisition heuristic rejected: held-out top-fifth activation 7.00% vs 7.08% overall.'],
-       'source':'No predictive uplift claim. Current help priority is an operational ranking, not conversion probability.'},
-      {'title':'Roll out through measured gates','lines':[
-        'Now: synthetic data, controlled regression checks, explicit simulated service stages.',
-        'Gate 1: validate live extraction and voice; rehearse recovery, access and retention.',
-        'Gate 2: managed identity, encrypted hosting, provider availability and operational review.',
-        'Then: invited professional-office pilot with partner support and a measured baseline.',
-        'WhatsApp guided consent, corrections and estimates are built; live sending stays disabled.'],
-       'source':'Proposed rollout. WhatsApp transport/state tested with mocks; approved account and live delivery validation pending.'},
+        'Needs assessed: 1,974; quotes accepted: 861. Only 43.6% make that transition.',
+        f"Priority segment: professional offices, {professional['leads']:,} leads and {professional['activation_rate']:.2%} historical activation.",
+        'Clinics, CA firms and coaching centres: dependable internet, email and basic security.',
+        'Value: an understandable bundle, visible fees, fewer document hand-offs and a saved status view.'],
+       'source':'Source: supplied synthetic leads and brief. Segment priority is a proposed pilot choice, not proven optimal.'},
+      {'title':'Compete on the complete journey','lines':[
+        'JioBusiness Solution: integrated connectivity, voice and digital services; bundles already exist.',
+        'Vi ReadyForNext: digital-readiness assessment, tailored report and service offers; advice already exists.',
+        'Case baseline: field-led discovery, 3-5-day quotes and document collection across channels.',
+        'Udyam combines reviewed Hindi/English discovery, editable quotes, mock KYC and a saved tracker.',
+        'Positioning hypothesis: reduce owner hand-offs, with consented partner help for exceptions.'],
+       'source':'Sources: JioBusiness / Vi official pages, checked 6 Nov 2026; docs/SUBMISSION_SOURCES.md. No full competitor-flow audit.'},
+      {'title':'From business needs to an editable quote','lines':[
+        'Advisor drafts reviewed needs; catalogue rules control eligibility, dependencies and every price.',
+        'Tier-1 clinic, five staff: Biz Fibre 100 at INR 999 + five email seats at INR 125 each.',
+        f"Monthly: INR {estimate['monthly_total']:,}. Setup: INR {estimate['setup_total']:,}. First month: INR {estimate['first_month_estimate']:,}. Taxes excluded.",
+        'Each service has a 12-month minimum contract; owner can edit quantities and add-ons.',
+        'Review estimate, consent to four-document checks, then create and track a simulated order.'],
+       'source':'Source: catalogue/quote code at build time. Starter bundle, not a budget optimizer or real commercial offer.'},
+      {'title':'Rules, privacy and people protect trust','lines':[
+        'React -> FastAPI -> catalogue/mock registries + SQLite. Consented Gemini drafts require review.',
+        'Separate consents for drafting, speech, documents and partner contact; images never saved.',
+        'Raw fields expire after 30 minutes or order submission; masked journey records after 24 hours.',
+        'Account ownership and staff roles limit access. Partners see assigned, consented summaries only.',
+        'Original inspection can resolve legibility; missing, expired or inconsistent evidence still blocks.'],
+       'source':'Separate architecture diagram and one-page privacy note supplied. Mock checks use 15 July 2026; not compliance certification.'},
+      {'title':'Rollout gates and risks','lines':[
+        'Now: working synthetic prototype; regression checks cover access, consent, navigation and recovery.',
+        'Provider risk: verify live extraction/voice; preserve inputs and guided fallback during outages.',
+        'Deployment risk: validate Docker/CI, managed identity, encrypted hosting and operating controls.',
+        'Delivery risk: real availability, payment and provisioning need integrations; current stages are simulated.',
+        'Next: invited professional-office pilot with partner support and a comparable baseline; WhatsApp stays disabled.'],
+       'source':'Proposed rollout, not a production-readiness claim. Acquisition heuristic rejected: top-fifth 7.00% vs 7.08% baseline.'},
       {'title':'Five proposed targets, not claimed results','lines':[
         'Lead-to-activation: historical 7.36%; proposed comparable-cohort target 10%.',
         'Mean lead-to-activation: 17.62 days; proposed target at most 12 days.',
@@ -91,13 +77,6 @@ def content():
         'Six-month churn: 15.22%; proposed target at most 12%. Status chases: about 3 to at most 1.',
         'At fixed acquisition spend only, 7.36% to 10% conversion implies about INR 11,079 CAC.'],
        'source':'Scenario arithmetic, not measured savings. Segment pilots need their own comparable baseline; churn needs six months.'},
-      {'title':'Evidence, limits and the next decision','lines':[
-        'Backend and browser regression evidence accompanies the working prototype.',
-        'Cross-checks cover access boundaries, duplicate submission, stale review, consent and recovery.',
-        'Database migration guards, readiness, bounded provider work and safe local restore are implemented.',
-        'Remaining gates: live extraction/voice quality, Docker runtime, hosted CI and real integrations.',
-        'Next decision: approve an invited synthetic-data rehearsal, then evaluate readiness for a limited pilot.'],
-       'source':'See verification-report.json and README. No public deployment, real payment or actual activation is claimed.'},
     ]
 
 
@@ -173,7 +152,7 @@ def pptx(slides):
         ET.SubElement(types,f"{{{NS['ct']}}}Override",PartName='/docProps/core.xml',ContentType='application/vnd.openxmlformats-package.core-properties+xml')
     outputs['_rels/.rels']=ET.tostring(root_rels,encoding='utf-8',xml_declaration=True)
     outputs['[Content_Types].xml']=ET.tostring(types,encoding='utf-8',xml_declaration=True)
-    with ZipFile(OUT/'Udyam_Digital_Business_Case.pptx','w',ZIP_DEFLATED) as archive:
+    with ZipFile(OUT/'Udyam_Digital_Business_Case_7_Slides.pptx','w',ZIP_DEFLATED) as archive:
         for name,data in outputs.items():archive.writestr(name,data)
 
 
@@ -204,7 +183,7 @@ def main():
     for i,slide in enumerate(slides):
         if i==0:body='<h1>'+html.escape(slide['title'])+'</h1>'+''.join('<p>'+html.escape(line)+'</p>' for line in slide['lines'])
         else:body='<h1>'+html.escape(slide['title'])+'</h1><ul>'+''.join('<li>'+html.escape(line)+'</li>' for line in slide['lines'])+'</ul>'
-        sections.append(f'<section class="slide {"cover" if i==0 else ""}" style="background-image:url(assets/{"cover" if i==0 else "inside"}.jpg)">{body}<footer>{html.escape(slide["source"])} · {i+1}/10</footer></section>')
+        sections.append(f'<section class="slide {"cover" if i==0 else ""}" style="background-image:url(assets/{"cover" if i==0 else "inside"}.jpg)">{body}<footer>{html.escape(slide["source"])} · {i+1}/{len(slides)}</footer></section>')
     deck='<!doctype html><html lang="en"><meta charset="utf-8"><title>Udyam Digital business case</title><style>'+style+'</style><body>'+''.join(sections)+'</body></html>'
     (OUT/'business-case.html').write_text(deck,encoding='utf-8')
     svg=architecture();(OUT/'architecture.svg').write_text(svg,encoding='utf-8')
@@ -219,8 +198,8 @@ def main():
     from pypdf import PdfReader
     with sync_playwright() as pw:
         browser=pw.chromium.launch();page=browser.new_page(viewport={'width':1280,'height':720})
-        page.goto((OUT/'business-case.html').as_uri());page.pdf(path=str(OUT/'Udyam_Digital_Business_Case.pdf'),prefer_css_page_size=True,print_background=True)
-        for index in [0,2,3,8,9]:page.locator('.slide').nth(index).screenshot(path=str(OUT/f'assets/slide-{index+1}.png'))
+        page.goto((OUT/'business-case.html').as_uri());page.pdf(path=str(OUT/'Udyam_Digital_Business_Case_7_Slides.pdf'),prefer_css_page_size=True,print_background=True)
+        for index in range(len(slides)):page.locator('.slide').nth(index).screenshot(path=str(OUT/f'assets/slide-{index+1}.png'))
         # Cross-check HTML text boxes for overflow before publishing the artifact.
         assert page.locator('.slide').evaluate_all('(nodes)=>nodes.every(n=>n.scrollHeight<=n.clientHeight && n.scrollWidth<=n.clientWidth)')
         page.goto((OUT/'privacy.html').as_uri());page.pdf(path=str(OUT/'Privacy_and_Security.pdf'),prefer_css_page_size=True,print_background=True)
@@ -228,13 +207,14 @@ def main():
         page.set_content('<style>@page{size:16in 8.6in;margin:0}body{margin:0}svg{display:block;width:100%;height:auto}</style>'+svg)
         page.pdf(path=str(OUT/'Architecture.pdf'),prefer_css_page_size=True,print_background=True)
         browser.close()
-    assert len(PdfReader(OUT/'Udyam_Digital_Business_Case.pdf').pages)==10
+    assert len(PdfReader(OUT/'Udyam_Digital_Business_Case_7_Slides.pdf').pages)==7
     assert len(PdfReader(OUT/'Privacy_and_Security.pdf').pages)==1
     assert len(PdfReader(OUT/'Architecture.pdf').pages)==1
-    (OUT/'build-manifest.json').write_text(json.dumps({'slides':10,'privacy_pages':1,'architecture_pages':1,
+    (OUT/'build-manifest.json').write_text(json.dumps({'slides':7,'privacy_pages':1,'architecture_pages':1,
+        'deck_pptx':'Udyam_Digital_Business_Case_7_Slides.pptx','deck_pdf':'Udyam_Digital_Business_Case_7_Slides.pdf',
         'template':TEMPLATE.name,'status':'Reviewable draft; live-provider validation and final demo recording pending',
-        'pricing':{'monthly':1624,'setup':0,'taxes':'excluded'},'sources':['smb_leads.csv','product_catalogue.csv','docs/PRIVACY.md','current application code']},indent=2),encoding='utf-8')
-    print('Built and checked: 10-slide editable PPTX + PDF, one-page privacy PDF and one-page architecture PDF/SVG. Review before submission.')
+        'pricing':{'monthly':1624,'setup':0,'taxes':'excluded'},'sources':['smb_leads.csv','product_catalogue.csv','docs/PRIVACY.md','current application code','docs/SUBMISSION_SOURCES.md']},indent=2),encoding='utf-8')
+    print('Built and checked: 7-slide editable PPTX + PDF, one-page privacy PDF and one-page architecture PDF/SVG. Review before submission.')
 
 
 if __name__=='__main__':main()

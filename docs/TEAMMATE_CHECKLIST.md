@@ -79,7 +79,7 @@ Use automated tests for eight-hour sessions, 24-hour records, 30-day accounts, s
 
 - [ ] Compare successful-field accuracy with end-to-end accuracy, failed-request count and median/p95 latency. A provider timeout is not a correct extraction. Keep private label/result files out of Git.
 - [ ] Cross-check an expected failure: K01 has an inactive GSTIN and a blank Udyam number; it should require action. This known manual check is not a live OCR score.
-- [ ] Find and independently validate one genuine success path for the final demo. A text-advisor success alone does not establish image extraction quality.
+- [ ] Independently validate a live extraction and checkout path using the separately labelled `demo_documents/checkout/DEMO01_*.png` fixtures. All ten supplied Udyam specimens with readable identifiers have registration dates differing from their mock registry entries; K01 has a blank identifier and K05 lacks the certificate. None is an unchanged passing set under the current rules. Original files/rules remain intact. Do not count success on DEMO01 as success on K01-K12 or as broad OCR accuracy evidence. A text-advisor success alone does not establish image extraction quality.
 
 ### Real voice and language
 
@@ -118,7 +118,7 @@ When approved, follow [WhatsApp operations](OPERATIONS.md#whatsapp-status): veri
 ## 6. Finish the submission materials
 
 - [ ] Review the supplied hackathon brief/template for team details, deadline, required links and file formats; do not infer the deadline from the synthetic dataset date.
-- [ ] Update the business-case deck after confirmed fixes/evaluation. Keep it at **10 slides maximum**, with reproducible synthetic baselines and clearly labelled proposed targets. No unsupported conversion/CAC uplift or production claims.
+- [ ] Update the business-case deck after confirmed fixes/evaluation. Keep it at **7 slides including the cover**, following the Unstop listing, with competitive analysis, reproducible synthetic baselines and clearly labelled proposed targets. No unsupported conversion/CAC uplift or production claims.
 - [ ] Check architecture/data flow, partner role, privacy/retention, consent, simulations and limitations against the actual final code. Keep the privacy/security PDF to **one page**.
 - [ ] Record the final **three-minute maximum** demonstration: registration/discovery, a reviewed estimate, genuine document extraction/checks, simulated checkout/tracker and a brief exception/handoff. Show only tested optional channels.
 - [ ] The existing `demo-rehearsal.webm` is explicitly controlled fixtures, not a live-provider result. A final recording should distinguish live requests, any fixtures, cuts and elapsed processing times honestly.

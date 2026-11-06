@@ -12,6 +12,7 @@ DIRECTORIES={'backend':{'.py'},'scripts':{'.py','.cjs'},'tests':{'.py'},'docs':{
              'frontend/src':{'.tsx','.ts'},'frontend/public':{'.svg'},'.github/workflows':{'.yml'}}
 FRONTEND=('frontend/package.json','frontend/package-lock.json','frontend/tsconfig.json','frontend/vite.config.ts','frontend/styles.css','frontend/index.html')
 DATA=('README.md','product_catalogue.csv','smb_leads.csv','mock_gstin_registry.csv','mock_udyam_registry.csv')
+DEMO_FILES=('README.md','manifest.json','DEMO01_gst_certificate.png','DEMO01_udyam_certificate.png','DEMO01_signatory_id.png','DEMO01_address_proof.png')
 
 
 def inputs():
@@ -23,6 +24,7 @@ def inputs():
     paths.update((data/'kyc_documents').glob('K[0-9][0-9]_*.png'))
     paths.update(ROOT/'6ad9d4887d445_airtel_sync'/name for name in ('Airtel_SYNC_Case.pdf','Submission Template_Sync.pptx'))
     paths.update(OUT/name for name in ('README.md','demo-narration.md'))
+    paths.update(ROOT/'demo_documents/checkout'/name for name in DEMO_FILES)
     for path in sorted(paths):
         if not path.is_file() or path.resolve()!=path.absolute() or not path.resolve().is_relative_to(ROOT.resolve()):
             raise ValueError('Source package input missing or linked outside its expected location.')

@@ -52,6 +52,7 @@ function ServiceCard({item, why, busy, t, localize, money, onRemove, onQuantity}
 export default function App() {
   const {user,openAuth}=useAuth();
   const [operations,setOperations]=useState(false);
+  const [requestedSection,setRequestedSection]=useState('');
   const [savedRecord,setSavedRecord]=useState('');
   const [language, setLanguage] = useState<Language>('en');
   const [form, setForm] = useState<BusinessForm>(initialForm);
@@ -65,8 +66,12 @@ export default function App() {
   const [reviewed, setReviewed] = useState(false);
   const [reviewBlocked, setReviewBlocked] = useState(false);
   const [reviewBusy, setReviewBusy] = useState(false);
+  const [planStep, setPlanStep] = useState(1);
   const [onboarding, setOnboarding] = useState<'new'|'resume'|null>(null);
   const [onboardingStep, setOnboardingStep] = useState(4);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
+  const [onboardingBusy, setOnboardingBusy] = useState(false);
   const [search, setSearch] = useState('');
   const [gstin, setGstin] = useState('');
   const [lookupConsent, setLookupConsent] = useState(false);
@@ -81,26 +86,69 @@ export default function App() {
   const epoch = useRef(0);
   const operation = useRef<AbortController | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const focusJourney = useRef(false);
   const reviewNotice = useRef<HTMLDivElement>(null);
   const reviewRequirements = useRef<HTMLDivElement>(null);
   const errorNotice = useRef<HTMLDivElement>(null);
   const t: Translate = key=>translations[language][key] ?? translations.en[key] ?? key;
   const localize: Localize = value=>language==='hi' ? value.message_hi || value.message : value.message;
   const money: FormatMoney = value=>new Intl.NumberFormat(language==='hi'?'hi-IN':'en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(value);
-  const step = onboarding ? onboardingStep : profile ? reviewed ? 3 : 2 : 1;
+  const step = showOnboarding ? showDocuments ? 4 : onboardingStep : planStep;
   const staffView=operations&&user&&user.role!=='customer';
-  function revealSection(id:string){const node=document.getElementById(id);if(node instanceof HTMLDetailsElement)node.open=true;node?.scrollIntoView({behavior:'instant',block:'start'});}
+  function revealSection(id:string){setRequestedSection(id);}
+  useEffect(()=>{
+    if(!staffView||!requestedSection) return;
+    function openSection(){
+      const node=document.getElementById(requestedSection);
+      if(!node) return false;
+      if(node instanceof HTMLDetailsElement) node.open=true;
+      node.scrollIntoView({behavior:'instant',block:'start'});
+      node.querySelector<HTMLElement>('summary')?.focus({preventScroll:true});
+      setRequestedSection('');return true;
+    }
+    if(openSection()) return;
+    const observer=new MutationObserver(()=>{if(openSection()) observer.disconnect();});
+    observer.observe(document.getElementById('main')!,{childList:true,subtree:true});
+    return ()=>observer.disconnect();
+  },[requestedSection,staffView]);
 
   useEffect(()=>{document.documentElement.lang=language;advisorEpoch.current++;setAdvisorBusy(false);},[language]);
   useEffect(()=>{advisorEpoch.current++;setAdvisorBusy(false);setAdvisorReply(null);setConversation([]);setBrief('');setFactsReviewed(false);},[user?.id]);
   useEffect(()=>{document.body.classList.toggle('results-mode',Boolean(profile)); return ()=>document.body.classList.remove('results-mode');},[profile]);
-  useEffect(()=>{if(profile) {window.scrollTo({top:0,behavior:'instant'});heading.current?.focus({preventScroll:true});}},[profile,reviewed]);
-  useEffect(()=>{if(reviewed) {window.scrollTo({top:0,behavior:'instant'});reviewNotice.current?.focus({preventScroll:true});}},[reviewed]);
+  useEffect(()=>{
+    if(showOnboarding||staffView||!focusJourney.current) return;
+    focusJourney.current=false;
+    window.scrollTo({top:0,behavior:'instant'});
+    const target=planStep===1?document.getElementById('discovery-title'):planStep===2?heading.current:reviewNotice.current;
+    target?.focus({preventScroll:true});
+  },[planStep,showOnboarding,staffView]);
   useEffect(()=>{if(reviewBlocked) reviewRequirements.current?.focus();},[reviewBlocked]);
   useEffect(()=>{if(error) errorNotice.current?.focus();},[error]);
   useEffect(()=>()=>operation.current?.abort(),[]);
 
-  function update<K extends keyof BusinessForm>(key: K, value: BusinessForm[K]) { setForm(previous=>({...previous,[key]:value})); setFactsReviewed(false); }
+  function clearDocumentJourney() {
+    setOnboarding(null);setSavedRecord('');setShowOnboarding(false);setShowDocuments(false);setOnboardingStep(4);setOnboardingBusy(false);
+  }
+  function invalidatePlan() {
+    clearDocumentJourney();setProfile(null);setRecommendations(null);setQuote(null);setToken(null);setLookup(null);setItems([]);setReviewed(false);setReviewBlocked(false);setError('');
+  }
+  function update<K extends keyof BusinessForm>(key: K, value: BusinessForm[K]) { if(profile) invalidatePlan();setForm(previous=>({...previous,[key]:value}));setFactsReviewed(false); }
+  function canVisitStep(target:number) {
+    if(target===1) return true;
+    if(target===2) return Boolean(profile);
+    if(target===3) return Boolean(profile&&reviewed&&quote?.catalogue_checks_pass);
+    if(target===4) return onboarding!==null;
+    return target===5&&onboarding!==null&&onboardingStep===5;
+  }
+  function visitStep(target:number) {
+    if(busy||advisorBusy||onboardingBusy||!canVisitStep(target)||target===step) return;
+    setError('');setReviewBlocked(false);
+    if(target<=3) {focusJourney.current=true;setShowOnboarding(false);setPlanStep(target);}
+    else {setShowDocuments(target===4&&onboardingStep===5);setShowOnboarding(true);}
+  }
+  function openOnboarding(mode:'new'|'resume', recordId='') {
+    setSavedRecord(recordId);setOnboarding(mode);setShowDocuments(false);setShowOnboarding(true);setOperations(false);
+  }
   function begin() { operation.current?.abort(); operation.current=new AbortController(); setBusy(true); setReviewBlocked(false); setError(''); return {id:++epoch.current,signal:operation.current.signal}; }
   function handleError(exception: unknown) {
     if(exception instanceof DOMException && exception.name==='AbortError') return;
@@ -113,21 +161,19 @@ export default function App() {
     if(!form.needs.length) {setError(t('needRequired'));return;}
     if(!form.business_type || !form.city_tier || !form.current_internet) return;
     const details: Profile={business_type:form.business_type,city_tier:Number(form.city_tier) as 1|2,employees:Number(form.employees),sites:Number(form.sites),monthly_budget:Number(form.monthly_budget||0),current_internet:form.current_internet,gstin_claim:form.gstin_claim,needs:form.needs,language};
+    if(profile&&JSON.stringify({...profile,language})===JSON.stringify(details)) {focusJourney.current=true;setPlanStep(2);return;}
     const {id,signal}=begin();
     try {
       const result=await post<Recommendations>('/api/recommend',{profile:details},signal);
       if(id!==epoch.current) return;
-      setProfile(details);setRecommendations(result);setQuote(result.quote);setItems(result.quote?.items.map(({product_id,quantity})=>({product_id,quantity}))||[]);setToken(null);setLookup(null);setGstin('');setLookupConsent(false);setReviewed(false);setSearch('');
+      focusJourney.current=true;clearDocumentJourney();setPlanStep(2);setProfile(details);setRecommendations(result);setQuote(result.quote);setItems(result.quote?.items.map(({product_id,quantity})=>({product_id,quantity}))||[]);setToken(null);setLookup(null);setGstin('');setLookupConsent(false);setReviewed(false);setSearch('');
     } catch(exception) {if(id===epoch.current) handleError(exception);}
     finally {if(id===epoch.current) setBusy(false);}
   }
 
-  function editProfile() {
-    epoch.current++;operation.current?.abort();setBusy(false);setReviewBusy(false);setReviewBlocked(false);setProfile(null);setQuote(null);setToken(null);setLookup(null);setItems([]);setReviewed(false);setError('');window.scrollTo({top:0,behavior:'instant'});
-  }
-
   async function refresh(nextItems: BundleItem[]) {
     if(!profile) return;
+    clearDocumentJourney();
     setItems(nextItems);setReviewed(false);
     const {id,signal}=begin();
     try {
@@ -139,6 +185,7 @@ export default function App() {
 
   async function verify(event: FormEvent) {
     event.preventDefault();if(!profile||!lookupConsent) return;
+    clearDocumentJourney();
     const {id,signal}=begin();setReviewed(false);
     try {
       const evidence=await post<LookupReply>('/api/gstin/verify',{gstin:gstin.trim().toUpperCase(),consent:true},signal);
@@ -158,7 +205,7 @@ export default function App() {
     setReviewBusy(true);
     try {
       const result=await post<{quote:Quote}>('/api/quote/check',{profile:{...profile,language},items,verification_token:token},signal);
-      if(id===epoch.current) {setQuote(result.quote);setReviewed(true);}
+      if(id===epoch.current) {focusJourney.current=true;setQuote(result.quote);setReviewed(true);setPlanStep(3);}
     } catch(exception) {if(id===epoch.current) {setReviewed(false);handleError(exception);}}
     finally {if(id===epoch.current) {setBusy(false);setReviewBusy(false);}}
   }
@@ -179,7 +226,7 @@ export default function App() {
       if(turnId!==advisorEpoch.current) return;
       setAdvisorReply(result);
       const draft=result.draft;
-      if(draft) setForm(previous=>({...previous,
+      if(draft) {invalidatePlan();setForm(previous=>({...previous,
         business_type:draft.business_type??previous.business_type,
         employees:draft.employees===null?previous.employees:String(draft.employees),
         sites:draft.sites===null?previous.sites:String(draft.sites),
@@ -187,7 +234,7 @@ export default function App() {
         current_internet:draft.current_internet??previous.current_internet,
         gstin_claim:draft.gstin_claim??previous.gstin_claim,
         needs:draft.needs.length?draft.needs:previous.needs,
-      }));
+      }));}
       if(draft){setConversation(previous=>[...previous,{role:'user',text:message},{role:'assistant',text:draft.follow_up}].slice(-8) as typeof conversation);setBrief('');setFactsReviewed(false);}
     } catch {if(turnId===advisorEpoch.current)setAdvisorReply({mode:'guided',draft:null,message:translations.en.unavailable,message_hi:translations.hi.unavailable,reason:'server_unreachable',retryable:true});}
     finally {if(turnId===advisorEpoch.current)setAdvisorBusy(false);}
@@ -208,24 +255,25 @@ export default function App() {
       <a className="brand" href="#main" aria-label="Accel Business home"><span className="brand-mark">a</span><span className="brand-wordmark">accel<span>BUSINESS</span></span></a>
       <span className="product-name">Udyam Digital</span>
       <div className="topbar-right"><span className="prototype">{language==='hi'?'डेमो वर्कस्पेस':'Demo workspace'}</span><label className="language-label"><span className="sr-only">{t('language')}</span><select id="language" aria-label={t('language')} value={language} onChange={event=>setLanguage(event.target.value as Language)}><option value="en">English</option><option value="hi">हिन्दी</option></select></label>
-        <AccountBar language={language} onLanguageChange={setLanguage} onOpen={id=>{setSavedRecord(id);setOnboarding('resume');setOperations(false);}} onOperations={()=>setOperations(true)}/>
+        <AccountBar language={language} onLanguageChange={setLanguage} onOpen={id=>openOnboarding('resume',id)} onOperations={()=>setOperations(true)}/>
       </div>
     </header>
     <main id="main" className="workspace">
       <aside className="intro" aria-label={language==='hi'?'आपकी यात्रा':'Your journey'}>
         <div className="rail-heading"><UIIcon name="grid"/><span>{staffView?(language==='hi'?'टीम वर्कस्पेस':'Team workspace'):(language==='hi'?'आपका बिज़नेस प्लान':'Your business plan')}</span></div>
         <p className="rail-caption">{language==='hi'?'एक समय में एक आसान कदम।':'One clear step at a time.'}</p>
-        {staffView?<nav className="staff-navigation" aria-label={language==='hi'?'टीम के हिस्से':'Team sections'}><button onClick={()=>revealSection('operations-view')}><UIIcon name="file"/>{language==='hi'?'कार्य सूची':'Task queue'}</button>{user.role==='reviewer'&&<><button onClick={()=>revealSection('operations-metrics')}><UIIcon name="clock"/>{language==='hi'?'यात्रा के आँकड़े':'Journey measurements'}</button><button onClick={()=>revealSection('business-insights')}><UIIcon name="grid"/>{language==='hi'?'व्यवसाय विश्लेषण':'Business evidence'}</button><button onClick={()=>revealSection('channel-status')}><UIIcon name="chat"/>{language==='hi'?'चैनल की स्थिति':'Channel status'}</button></>}</nav>:<ol className="steps" aria-label={language==='hi'?'आपकी प्रगति':'Your progress'}>{(['discover','tailor','review','documents','track'] as const).map((name,i)=><li key={name} id={`step${i+1}`} className={step===i+1?'active':step>i+1?'complete':''} aria-current={step===i+1?'step':undefined}><span>{step>i+1?<UIIcon name="check"/>:i+1}</span><div><strong>{t(name)}</strong><small>{t(name+'Sub')}</small></div></li>)}</ol>}
+        {staffView?<nav className="staff-navigation" aria-label={language==='hi'?'टीम के हिस्से':'Team sections'}><button onClick={()=>revealSection('operations-view')}><UIIcon name="file"/>{language==='hi'?'कार्य सूची':'Task queue'}</button>{user.role==='reviewer'&&<><button onClick={()=>revealSection('operations-metrics')}><UIIcon name="clock"/>{language==='hi'?'यात्रा के आँकड़े':'Journey measurements'}</button><button onClick={()=>revealSection('business-insights')}><UIIcon name="grid"/>{language==='hi'?'व्यवसाय विश्लेषण':'Business evidence'}</button><button onClick={()=>revealSection('channel-status')}><UIIcon name="chat"/>{language==='hi'?'चैनल की स्थिति':'Channel status'}</button></>}</nav>:<ol className="steps" aria-label={language==='hi'?'आपकी प्रगति':'Your progress'}>{(['discover','tailor','review','documents','track'] as const).map((name,i)=><li key={name} id={`step${i+1}`} className={step===i+1?'active':step>i+1?'complete':''} aria-current={step===i+1?'step':undefined}><button className="step-link" type="button" disabled={i+1===step||busy||advisorBusy||onboardingBusy||!canVisitStep(i+1)} onClick={()=>visitStep(i+1)} aria-label={t(name)}><span>{step>i+1?<UIIcon name="check"/>:i+1}</span><div><strong>{t(name)}</strong><small>{t(name+'Sub')}</small></div></button></li>)}</ol>}
         <div className="rail-note"><UIIcon name="shield"/><strong>{language==='hi'?'पहले अपना प्लान देखें।':'Explore at your own pace.'}</strong><p>{t('privacyShort')}</p></div>
         <div className="rail-footer"><span className="environment-dot"/>{language==='hi'?'काल्पनिक डेटा वाला डेमो':'Synthetic data · Demo only'}</div>
       </aside>
       <section className="content">
-        <div className="content-topline"><p className="breadcrumb">{language==='hi'?'व्यवसाय सेवाएँ':'Business services'}<span>/</span>{operations?(language==='hi'?'टीम वर्कस्पेस':'Team workspace'):onboarding?(language==='hi'?'दस्तावेज़ और ऑर्डर':'Checks & orders'):(language==='hi'?'नया प्लान':'New plan')}</p>
-          {!onboarding&&!operations&&<button id="open-saved-order" className="text-button resume-link" type="button" disabled={busy||advisorBusy} onClick={()=>setOnboarding('resume')}><UIIcon name="clock"/>{language==='hi'?'सहेजा हुआ काम जारी रखें':'Resume saved progress'}</button>}
+        <div className="content-topline"><p className="breadcrumb">{language==='hi'?'व्यवसाय सेवाएँ':'Business services'}<span>/</span>{operations?(language==='hi'?'टीम वर्कस्पेस':'Team workspace'):showOnboarding?(language==='hi'?'दस्तावेज़ और ऑर्डर':'Checks & orders'):(language==='hi'?'नया प्लान':'New plan')}</p>
+          {!showOnboarding&&!operations&&<button id="open-saved-order" className="text-button resume-link" type="button" disabled={busy||advisorBusy} onClick={()=>openOnboarding('resume')}><UIIcon name="clock"/>{language==='hi'?'सहेजा हुआ काम जारी रखें':'Resume saved progress'}</button>}
         </div>
         <div id="error" ref={errorNotice} tabIndex={-1} className="notice error" role="alert" hidden={!error}>{localError(error,language)}</div>
-        {operations&&user&&user.role!=='customer'?<Operations key={user.id} language={language} onExit={()=>setOperations(false)}/>:onboarding ? <Onboarding key={user?.id||'anonymous'} language={language} initialRecord={savedRecord} initial={onboarding==='new'&&profile?{profile:{...profile,language},items}:null} onExit={()=>{setOnboarding(null);setSavedRecord('');}} onStage={setOnboardingStep}/> : !profile ? <section id="discovery-view" aria-labelledby="discovery-title">
-          <div className="section-heading"><div><span className="eyebrow">{t('stepOne')}</span><h1 id="discovery-title">{language==='hi'?'आपके काम के लिए सही सेवाएँ।':'A better way to connect your business.'}</h1></div></div><p className="section-copy">{language==='hi'?'अपने व्यवसाय के बारे में बताएँ। सेवाएँ चुनें, कीमतें देखें और तैयार होने पर आगे बढ़ें।':'Tell us a little about your business. Explore the services, see the costs, and take the next step when you’re ready.'}</p>
+        {onboarding&&<div hidden={!showOnboarding||Boolean(staffView)}><Onboarding key={(user?.id||'anonymous')+':'+savedRecord} language={language} initialRecord={savedRecord} initial={onboarding==='new'&&profile?{profile:{...profile,language},items}:null} active={showOnboarding&&!staffView} showDocuments={showDocuments} onBusyChange={setOnboardingBusy} onStage={setOnboardingStep}/></div>}
+        {staffView?<Operations key={user.id} language={language} onExit={()=>setOperations(false)}/>:showOnboarding ? null : planStep===1||!profile ? <section id="discovery-view" aria-labelledby="discovery-title">
+          <div className="section-heading"><div><span className="eyebrow">{t('stepOne')}</span><h1 id="discovery-title" tabIndex={-1}>{language==='hi'?'आपके काम के लिए सही सेवाएँ।':'A better way to connect your business.'}</h1></div></div><p className="section-copy">{language==='hi'?'अपने व्यवसाय के बारे में बताएँ। सेवाएँ चुनें, कीमतें देखें और तैयार होने पर आगे बढ़ें।':'Tell us a little about your business. Explore the services, see the costs, and take the next step when you’re ready.'}</p>
           {!user&&<div className="registration-prompt"><UIIcon name="user"/><p><strong>{language==='hi'?'एक जगह से अपनी प्रगति देखें।':'Keep your next steps in one place.'}</strong><span>{language==='hi'?'खाता बनाएँ और दस्तावेज़ जाँच व डेमो ऑर्डर सहेजें। अभी सेवाएँ देखना भी जारी रख सकते हैं।':'Create an account to save document checks and track your demo order. You can explore first.'}</span></p><button className="text-button" onClick={()=>openAuth('register')}>{language==='hi'?'खाता बनाएँ':'Create account'}<UIIcon name="arrow"/></button></div>}
           <div className="method-label"><span>{language==='hi'?'आसान सवालों से शुरू करें':'Start with a few details'}</span><span>{language==='hi'?'या सलाहकार की मदद लें':'or get a little help'}</span></div>
           <details className="advisor-box"><summary><span className="advisor-icon"><UIIcon name="chat"/></span><div><strong>{t('advisorTitle')}</strong><span>{t('advisorSub')}</span></div><span className="plus" aria-hidden="true">+</span></summary><div className="advisor-body">
@@ -252,8 +300,7 @@ export default function App() {
             <div className="form-section"><div className="form-section-title"><span>03</span><div><h3>{t('needsTitle')}</h3><p>{t('needsHelp')}</p></div></div><div id="needs" className="needs-grid">{(Object.keys(needIcons) as Need[]).map(need=><label className="need" key={need}><Icon need={need}/><span>{t(need)}</span><input type="checkbox" name="needs" value={need} checked={form.needs.includes(need)} disabled={busy||advisorBusy} onChange={event=>update('needs',event.target.checked?[...form.needs,need]:form.needs.filter(item=>item!==need))}/></label>)}</div></div>
             <div className="form-footer"><p>{t('formFooter')}</p><button className="button primary" id="recommend-button" type="submit" disabled={busy||advisorBusy}><span>{busy?t('waiting'):t('seeBundle')}</span><UIIcon name="arrow"/></button></div>
           </form>
-        </section> : reviewed && quote ? <section id="review-view" aria-labelledby="review-title">
-          <button id="back-to-bundle" className="text-button" type="button" onClick={()=>setReviewed(false)}>{t('backToBundle')}</button>
+        </section> : planStep===3 && reviewed && quote ? <section id="review-view" aria-labelledby="review-title">
           <div id="review-result" ref={reviewNotice} tabIndex={-1}>
             <div className="section-heading"><div><span className="eyebrow">{t('stepThree')}</span><h1 id="review-title">{t('checked')}</h1></div></div>
             <div className="notice success" role="status"><p>{t('checkedNote')}</p></div>
@@ -266,11 +313,11 @@ export default function App() {
           </article>)}
           <div className="quote-breakdown" id="review-totals">{[['monthly',quote.monthly_total],['setupFees',quote.setup_total],['firstMonth',quote.first_month_estimate]].map(([label,amount])=><div className="quote-row" key={label}><span>{t(String(label))}</span><strong>{money(Number(amount))}</strong></div>)}</div>
           <p className="quiet">{t('taxNote')}</p><p className="quiet">{t('pricingNote')}</p>
-          <button id="continue-kyc" className="button primary" type="button" onClick={()=>setOnboarding('new')}>{t('continueKyc')}</button>
+          <button id="continue-kyc" className="button primary" type="button" onClick={()=>openOnboarding('new')}>{t('continueKyc')}</button>
           <button id="download-quote" className="button secondary" type="button" onClick={download}>{t('download')}</button>
           <p className="quote-footnote">{t('estimateLimit')}</p>
         </section> : <section id="bundle-view" aria-labelledby="bundle-title">
-          <button className="text-button" id="edit-profile" type="button" onClick={editProfile}>{t('editDetails')}</button><div className="section-heading"><div><span className="eyebrow">{t('stepTwo')}</span><h1 id="bundle-title" ref={heading} tabIndex={-1}>{t('bundleTitle')}</h1></div></div>
+          <div className="section-heading"><div><span className="eyebrow">{t('stepTwo')}</span><h1 id="bundle-title" ref={heading} tabIndex={-1}>{t('bundleTitle')}</h1></div></div>
           <p id="profile-summary" className="section-copy">{t('profileSummary').replace('{type}',t(profile.business_type)).replace('{team}',String(profile.employees)).replace('{sites}',String(profile.sites)).replace('{tier}',String(profile.city_tier))}</p>
           <div className="notice info"><strong>{t('demoPricing')}</strong><p>{t('pricingNote')}</p></div>
           <div id="unmet-needs" className="notice warning" hidden={!recommendations?.unmet_needs.length}><strong>{t('unmetTitle')}</strong>{recommendations?.unmet_needs.map(item=><p key={item.need}>{t('unmetNote')} {t(item.need)}. {item.reasons.map(localize).join(' ')}</p>)}</div>
@@ -291,7 +338,7 @@ export default function App() {
             </>}</div>
             <button id="check-quote" className="button primary wide" type="button" disabled={busy||!quote} onClick={review}>{t(reviewBusy?'checkingQuote':'checkQuote')}</button>
             {reviewBlocked&&quote&&<div id="review-requirements" ref={reviewRequirements} className="notice warning" role="alert" tabIndex={-1}><strong>{t('reviewRequirements')}</strong><ul>{quote.items.filter(item=>item.status!=='eligible').map(item=><li key={item.product_id}>{item.name}: {item.reasons.map(localize).join(' ')}</li>)}</ul></div>}
-            {reviewBlocked&&quote?.status==='conditional'&&quote.items.every(item=>item.reasons.every(reason=>['gstin_unverified','dependency_conditional'].includes(reason.code)))&&<button id="conditional-kyc" className="button secondary wide" type="button" onClick={()=>setOnboarding('new')}>{t('continueKyc')}</button>}
+            {reviewBlocked&&quote?.status==='conditional'&&quote.items.every(item=>item.reasons.every(reason=>['gstin_unverified','dependency_conditional'].includes(reason.code)))&&<button id="conditional-kyc" className="button secondary wide" type="button" onClick={()=>openOnboarding('new')}>{t('continueKyc')}</button>}
             <button id="download-quote" className="text-button wide" type="button" disabled={busy||!quote} onClick={download}>{t('download')}</button><p className="quote-footnote">{t('estimateLimit')}</p>
           </aside></div>
         </section>}

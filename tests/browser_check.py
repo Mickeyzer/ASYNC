@@ -35,6 +35,8 @@ with sync_playwright() as playwright:
     page.on("pageerror", lambda error: errors.append(str(error)))
     page.on("console", lambda message: errors.append(message.text) if message.type == "error" else None)
     page.goto(BASE_URL, wait_until='networkidle')
+    for number in range(2,6):
+        expect(page.locator(f'#step{number} button')).to_be_disabled()
     page.screenshot(path=str(ARTIFACTS / 'desktop-discovery.png'), full_page=True)
     fill_profile(page, ["internet", "email"])
     assert page.locator('[data-product="P16"] [data-quantity]').input_value() == '5'
@@ -63,10 +65,23 @@ with sync_playwright() as playwright:
     download.value.save_as(str(ARTIFACTS / 'estimate.txt'))
     assert '1,874' in (ARTIFACTS / 'estimate.txt').read_text(encoding='utf-8-sig')
 
-    page.click('#back-to-bundle')
+    expect(page.locator('#back-to-bundle, #edit-profile')).to_have_count(0)
+    page.locator('#step2 button').focus()
+    page.keyboard.press('Enter')
     expect(page.locator('#step2')).to_have_attribute('aria-current', 'step')
-    page.click('#edit-profile')
+    expect(page.locator('#bundle-title')).to_be_focused()
+    expect(page.locator('[data-quantity="P16"]')).to_have_value('7')
+    page.click('#step1 button')
+    expect(page.locator('#discovery-title')).to_be_focused()
+    expect(page.locator('[name=employees]')).to_have_value('5')
+    page.click('#step2 button')
+    expect(page.locator('[data-quantity="P16"]')).to_have_value('7')
+    page.click('#step3 button')
+    expect(page.locator('#review-totals')).to_contain_text('1,874')
+    page.click('#step1 button')
     page.uncheck('[name="needs"][value="email"]')
+    for number in (2,3,4,5):
+        expect(page.locator(f'#step{number} button')).to_be_disabled()
     page.check('[name="needs"][value="backup"]')
     page.check('[name="needs"][value="whatsapp"]')
     page.click('#recommend-button')
@@ -118,7 +133,7 @@ with sync_playwright() as playwright:
     page.set_viewport_size({"width": 390, "height": 844})
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
     page.screenshot(path=str(ARTIFACTS / 'mobile-bundle.png'), full_page=True)
-    page.click('#edit-profile')
+    page.click('#step1 button')
     assert page.locator('#discovery-view').is_visible()
     assert page.locator('[name="employees"]').input_value() == '5'
     page.screenshot(path=str(ARTIFACTS / 'mobile-discovery.png'), full_page=True)
@@ -162,7 +177,7 @@ with sync_playwright() as playwright:
     expect(page.locator('#review-result')).to_be_focused()
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
     page.screenshot(path=str(ARTIFACTS / 'mobile-review.png'), full_page=True)
-    page.click('#back-to-bundle')
+    page.click('#step2 button')
     page.fill('[data-quantity="P16"]', '6')
     page.locator('[data-quantity="P16"]').press('Tab')
     expect(page.locator('#check-quote')).to_be_enabled()
@@ -170,5 +185,5 @@ with sync_playwright() as playwright:
     # The injected outage intentionally produces one browser network error.
     unexpected_errors = [message for message in errors if '503' not in message]
     assert not unexpected_errors, unexpected_errors
-    print(json.dumps({"result": "passed", "unexpected_browser_errors": unexpected_errors, "checks": ["desktop form", "quote arithmetic", "quantity edits", "review gate", "download", "conditional GSTIN", "dependency removal and repair", "mock GSTIN verification and masking", "failed quote retry", "Hindi", "mobile overflow", "edit invalidation", "unmet needs", "advisor consent", "specific bilingual advisor failure", "advisor draft retry and safe text rendering", "visible step three and focus", "review failure preserves bundle and permits retry", "blocked review explains requirements", "mobile Hindi review and return to editing"], "screenshots": str(ARTIFACTS)}, indent=2))
+    print(json.dumps({"result": "passed", "unexpected_browser_errors": unexpected_errors, "checks": ["desktop form", "sidebar keyboard navigation and focus", "revisiting preserves customized bundle and reviewed estimate", "profile edits invalidate later steps", "future steps locked", "quote arithmetic", "quantity edits", "review gate", "download", "conditional GSTIN", "dependency removal and repair", "mock GSTIN verification and masking", "failed quote retry", "Hindi", "mobile overflow", "edit invalidation", "unmet needs", "advisor consent", "specific bilingual advisor failure", "advisor draft retry and safe text rendering", "visible step three and focus", "review failure preserves bundle and permits retry", "blocked review explains requirements", "mobile Hindi review and return to editing"], "screenshots": str(ARTIFACTS)}, indent=2))
     browser.close()

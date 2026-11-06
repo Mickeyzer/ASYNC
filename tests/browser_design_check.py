@@ -121,7 +121,7 @@ def run():
                 expect(page.locator('[data-document=gst_certificate] .extracted-fields')).to_have_count(0)
                 page.set_viewport_size({'width':390,'height':844});page.select_option('#language','hi');overflow(page)
                 page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(ROOT/'artifacts/redesign-mobile-documents.png'),full_page=True)
-                page.select_option('#language','en');page.locator('#onboarding-view > button').first.click()
+                page.select_option('#language','en');page.click('#step3 button');page.reload()
                 page.click('#open-saved-order');page.click('#find-account-records')
                 expect(page.locator('.saved-record')).to_have_count(1)
                 page.locator('.saved-record').click();expect(page.locator('.document-card')).to_have_count(4)
@@ -129,10 +129,18 @@ def run():
                 team_context=browser.new_context(viewport={'width':390,'height':844});team=team_context.new_page()
                 team.on('pageerror',lambda error:errors.append(str(error)))
                 assert team_context.request.post(url+'/api/account/login',headers={'X-Requested-With':'Udyam'},data={'username':'design-reviewer','password':PASSWORD}).status==200
-                team.goto(url);team.click('#open-operations')
+                pending_channel=[]
+                team.route('**/api/operations/channel-status',lambda route:pending_channel.append(route))
+                team.goto(url)
+                with team.expect_request('**/api/operations/channel-status'):
+                    team.click('#open-operations')
                 team.locator('.staff-navigation').get_by_role('button',name='Journey measurements',exact=True).click()
                 expect(team.locator('#operations-metrics')).to_have_attribute('open','')
                 team.locator('.staff-navigation').get_by_role('button',name='Channel status',exact=True).click()
+                expect(team.locator('#channel-status')).to_have_count(0)
+                expect(team.locator('#operations-metrics')).to_be_visible()
+                assert len(pending_channel)==1
+                pending_channel.pop().continue_()
                 expect(team.locator('#channel-status')).to_have_attribute('open','');overflow(team)
                 expect(team.get_by_role('button',name='Account for design-reviewer',exact=True)).to_be_visible()
                 assert not errors,errors

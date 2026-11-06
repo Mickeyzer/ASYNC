@@ -16,6 +16,8 @@ Business details, current setup and selected needs have distinct sections. The o
 
 The estimate groups monthly costs, setup fees, first-month totals, contracts and unmet conditions. **Continue to document checks** is the primary action after reviewing an estimate; downloading it remains secondary. Staff have section shortcuts for their queue and authorized measurement/evidence/channel panels.
 
+The progress rail is the journey navigation. Click an available step to return to it; keyboard users can Tab to its button and press Enter or Space. Dedicated journey back buttons are removed. Future steps remain disabled until their requirements are met. Returning without edits preserves the customized bundle, reviewed estimate, uploaded fields and draft declarations. Editing business details or the bundle invalidates later checks and requires a new document-consent flow. Existing saved orders remain unchanged. After submission, the Documents step shows a read-only masked summary, and Track reopens the same order. On mobile, the same navigation appears above the content. Staff shortcuts also wait for asynchronously loaded panels before opening them.
+
 ## Documents and recovery
 
 Before uploads, concise statements explain provider processing, retention and authorized review, with the full notice available before consent. Four upload slots accept browse or drag-and-drop, display reading progress, and count added documents. Unsupported/multiple files are rejected. The extracted-detail confirmation form appears after the first extraction. Missing or invalid evidence still blocks submission.

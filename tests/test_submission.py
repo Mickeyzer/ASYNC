@@ -13,17 +13,17 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'submission'
 
 
-def test_presentation_is_editable_ten_slides_and_all_internal_links_resolve():
-    with ZipFile(OUT/'Udyam_Digital_Business_Case.pptx') as archive:
+def test_presentation_is_editable_seven_slides_and_all_internal_links_resolve():
+    with ZipFile(OUT/'Udyam_Digital_Business_Case_7_Slides.pptx') as archive:
         names=set(archive.namelist())
         presentation=ET.fromstring(archive.read('ppt/presentation.xml'))
         p='http://schemas.openxmlformats.org/presentationml/2006/main'
-        assert len(presentation.find('{'+p+'}sldIdLst'))==10
+        assert len(presentation.find('{'+p+'}sldIdLst'))==7
         text=[]
-        for index in range(1,11):
+        for index in range(1,8):
             slide=ET.fromstring(archive.read(f'ppt/slides/slide{index}.xml'))
             text.extend(n.text or '' for n in slide.iter() if n.tag.endswith('}t'))
-        assert len(text)>60  # Editable text, not just a raster deck.
+        assert len(text)>40  # Editable text, not just a raster deck.
         for name in names:
             if not name.endswith('.rels'):continue
             # Derive the source part independently of the artifact writer.
@@ -35,12 +35,13 @@ def test_presentation_is_editable_ten_slides_and_all_internal_links_resolve():
                 resolved=posixpath.normpath(posixpath.join(base,target)).lstrip('/')
                 assert resolved in names,(name,target,resolved)
         assert 'not claimed results' in ' '.join(text)
+        assert 'JioBusiness' in ' '.join(text) and 'Vi ReadyForNext' in ' '.join(text)
 
 
 def test_pdf_page_limits_and_source_numbers_are_independently_checked():
-    deck=PdfReader(OUT/'Udyam_Digital_Business_Case.pdf')
+    deck=PdfReader(OUT/'Udyam_Digital_Business_Case_7_Slides.pdf')
     privacy=PdfReader(OUT/'Privacy_and_Security.pdf')
-    assert len(deck.pages)==10 and len(privacy.pages)==1
+    assert len(deck.pages)==7 and len(privacy.pages)==1
     assert len(PdfReader(OUT/'Architecture.pdf').pages)==1
     with (ROOT/'YTL_TrackA_Udyam_Digital_Data/smb_leads.csv').open(encoding='utf-8-sig',newline='') as f:rows=list(csv.DictReader(f))
     active=[r for r in rows if r['outcome']=='Activated']

@@ -106,6 +106,16 @@ def run():
                     page.set_input_files('#upload-'+kind,str(directory/f'fixture-{marker}.png'))
                     expect(page.locator(f'[data-document={kind}] .extracted-fields')).to_be_visible()
                     expect(page.locator('#upload-'+kind)).to_be_enabled()
+                # Going back must preserve this record, extracted fields and unsubmitted edits.
+                page.fill('[name=business_name]','Draft business name')
+                extraction_count=len(calls)
+                page.click('#step3 button')
+                expect(page.locator('#review-view')).to_be_visible()
+                page.click('#step4 button')
+                expect(page.locator('[name=business_name]')).to_have_value('Draft business name')
+                expect(page.locator('[data-document=gst_certificate] .extracted-fields')).to_be_visible()
+                assert len(calls)==extraction_count
+                page.fill('[name=business_name]',documents['gst_certificate'].business_name)
                 assert documents['gst_certificate'].gstin not in page.locator('body').inner_text()
                 assert documents['signatory_id'].id_number not in page.locator('body').inner_text()
                 expect(page.locator('[name=business_name]')).to_have_value(documents['gst_certificate'].business_name)
@@ -139,11 +149,36 @@ def run():
                 expect(page.locator('#order-tracker')).to_be_visible()
                 expect(page.locator('#step5')).to_have_attribute('aria-current','step')
                 expect(page.locator('#order-tracker')).to_contain_text('SIMULATION')
+                order_reference=page.locator('#order-tracker>h3').first.inner_text()
+                page.click('#step4 button')
+                expect(page.locator('#submitted-documents')).to_be_visible()
+                expect(page.locator('#step4')).to_have_attribute('aria-current','step')
+                expect(page.locator('#submit-order')).to_have_count(0)
+                expect(page.locator('[id^=upload-]')).to_have_count(0)
+                page.click('#step5 button')
+                expect(page.locator('#order-tracker>h3').first).to_have_text(order_reference)
                 assert not store.drafts(identifier)
+                # A changed bundle starts fresh checks and cannot alter the existing order.
+                page.click('#step2 button')
+                page.fill('[data-quantity="P16"]','6')
+                page.locator('[data-quantity="P16"]').press('Tab')
+                expect(page.locator('#quote-summary')).to_contain_text('1,749')
+                for number in (3,4,5):
+                    expect(page.locator(f'#step{number} button')).to_be_disabled()
+                existing=page.request.get(url+'/api/onboarding/'+identifier).json()
+                assert existing['order']['reference']==order_reference
+                assert existing['quote']['monthly_total']==1624
+                page.click('#check-quote');page.click('#continue-kyc')
+                expect(page.locator('#kyc-consent')).not_to_be_checked()
+                expect(page.locator('#start-kyc')).to_be_disabled()
+                expect(page.locator('.document-card')).to_have_count(0)
                 # New store instance simulates losing all process memory on restart.
                 onboarding.STORE=main.STORE=OnboardingStore(store.path)
                 page.reload()
                 page.click('#open-saved-order')
+                expect(page.locator('#step1 button')).to_be_enabled()
+                expect(page.locator('#step2 button')).to_be_disabled()
+                expect(page.locator('#step3 button')).to_be_disabled()
                 page.locator('.legacy-recovery > summary').click()
                 page.fill('#resume-id',identifier)
                 page.fill('#resume-code','incorrect-code')
@@ -169,7 +204,7 @@ def run():
                 assert not errors,errors
                 browser.close()
                 print(json.dumps({'result':'passed','provider_calls':'controlled test extraction only','extractions':len(calls),
-                                  'checks':['consent gate','four image uploads','masked identifiers','missing Udyam correction','mismatch blocks checkout','declaration edits invalidate UI approval','explicit checkout consent','persistent order recovery','wrong access code denied','simulated status transitions','Hindi mobile tracker','record deletion'],
+                                  'checks':['consent gate','four image uploads','sidebar preserves uploaded fields and declaration edits','submitted documents are read only','bundle changes require fresh checks and consent','existing order remains unchanged','resumed records cannot skip unknown earlier steps','masked identifiers','missing Udyam correction','mismatch blocks checkout','declaration edits invalidate UI approval','explicit checkout consent','persistent order recovery','wrong access code denied','simulated status transitions','Hindi mobile tracker','record deletion'],
                                   'unexpected_browser_errors':errors},indent=2))
         finally:
             server.should_exit=True
