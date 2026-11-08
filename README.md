@@ -2,7 +2,7 @@
 
 A local prototype for the Airtel SYNC Enterprise Track A brief: business needs, a configurable estimate, consented document checks, demo checkout and saved order tracking. Accel Business and the supplied customer data are fictional.
 
-**Spicers | TIET:** Ishan Bhat and Gaurav Prakash Srivastava. [Watch the recorded demo](https://youtu.be/VdtKxBKpCHQ) or open the [final seven-slide submission files](submission/final/README.md). Supporting architecture and one-page privacy PDFs are included there. The repository is private; reviewers need authorized access.
+**Spicers | TIET:** Ishan Bhat and Gaurav Prakash Srivastava. [Watch the recorded demo](https://youtu.be/VdtKxBKpCHQ) or open the [final seven-slide submission files](submission/final/README.md). Supporting architecture and one-page privacy PDFs are included there. The repository and supporting PDFs are publicly accessible.
 
 The redesigned frontend has a visible **Create account** entry, guided registration, a clearer business/service workspace and drag-and-drop document uploads. See [frontend and registration](docs/FRONTEND.md) for the interaction changes and keyboard/mobile checks.
 
@@ -25,7 +25,7 @@ The [milestone plan](docs/MILESTONES.md) tracks implemented account/dashboard/vo
 | Internet | First-time dependency installation and optional provider requests |
 | Gemini API key | Required for advisor drafting and document extraction; guided discovery and estimates work without it |
 
-No separate database server, Docker installation or paid hosting is needed for local use. SQLite is included with Python. Private-repository access is required before a teammate can clone.
+No separate database server, Docker installation or paid hosting is needed for local use. SQLite is included with Python. Anyone can clone the public repository using the URL below.
 
 ## Quick start on Windows
 
@@ -86,7 +86,7 @@ Configure your own Gemini key in `.env` when needed and open the same localhost 
 - **Port 8010 is busy:** stop an old app instance first. Restarting also loads backend changes; the normal launcher does not auto-reload Python.
 - **Advisor unavailable:** guided discovery still works. Run `.\.venv\Scripts\python.exe check_gemini.py` for redacted provider diagnostics. Missing credentials, quota, network failures and timeouts are distinct; do not assume a failed request means the key is invalid.
 - **Document checks fail:** some supplied applicants intentionally have missing, inactive or inconsistent evidence. Review the reported reason; do not force approval.
-- **Private repository clone fails:** accept the repository invitation and authenticate Git/GitHub CLI on your own machine. Never paste an access token into a clone URL.
+- **Repository clone fails:** check the repository URL, Git installation and network access. The repository is public and does not require an invitation. Never paste an access token into a clone URL.
 
 `runtime/accounts.sqlite3` holds local accounts; `runtime/onboarding.sqlite3` holds local document-check/order records. Runtime data, credentials, dependencies, caches and personal learning notes are excluded from Git. The supplied CSVs and fictional KYC images are included. Generated presentation/privacy/architecture files and the controlled demo are in `submission/`; rebuild the optional source ZIP with `python scripts/package_source.py`.
 

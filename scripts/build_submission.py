@@ -217,7 +217,7 @@ Upload **{FINAL_BASENAME}.pdf** and **{FINAL_BASENAME}.pptx** in the two slide-u
 - [Full architecture PDF]({SUPPORTING_LINKS[0][1]})
 - [One-page privacy/security note]({SUPPORTING_LINKS[1][1]})
 
-The repository is private; arrange authorized judge access before submitting its link. The final video was supplied by the team; it is separate from the controlled demo-rehearsal.webm. Automated playback and duration inspection were unavailable. The brief caps the video at three minutes.
+The repository and supporting PDFs are public; judges can open the code, architecture and privacy-note links without a repository invitation. The final video was supplied by the team; it is separate from the controlled demo-rehearsal.webm. Automated playback and duration inspection were unavailable. The brief caps the video at three minutes.
 
 The demo uses separately labelled synthetic DEMO01 documents and simulated payment, availability and activation. Business targets are proposed, not measured uplift. No portal submission has been performed by these build scripts. Check the logged-in round, review the files, submit personally and retain confirmation.
 ''',encoding='utf-8')
