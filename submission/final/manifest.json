@@ -1,0 +1,30 @@
+{
+  "team": "Spicers",
+  "campus": "TIET",
+  "members": [
+    "Ishan Bhat",
+    "Gaurav Prakash Srivastava"
+  ],
+  "video_url": "https://youtu.be/VdtKxBKpCHQ",
+  "repository_url": "https://github.com/Mickeyzer/ASYNC",
+  "maximum_file_bytes": 20000000,
+  "slides_including_cover": 7,
+  "files": {
+    "Spicers_TIET.pptx": {
+      "bytes": 1363952,
+      "sha256": "51b1ea04af61530468f55de919728f1f1ccf068e65d647e6eb9ff5540318ef7b"
+    },
+    "Spicers_TIET.pdf": {
+      "bytes": 1428191,
+      "sha256": "42122b24a005e93ff771538e10786df9c3c73e6415df8c3587cd5fab3db92e27"
+    },
+    "Architecture.pdf": {
+      "bytes": 91557,
+      "sha256": "5a8684d79d38984fb077673ac29e8ca9c4c7dc5cc49258a8e7347aac8570cd80"
+    },
+    "Privacy_and_Security.pdf": {
+      "bytes": 54507,
+      "sha256": "fad42cdaca4eaa8d4316cb02c08df53b75177b8e43228df8ae8d0a7d2ac1bfb2"
+    }
+  }
+}

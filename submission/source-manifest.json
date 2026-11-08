@@ -1,5 +1,5 @@
 {
-  "files": 150,
-  "sha256": "882193ba5e4e2e06c2f01aabf519e2b1ffe72bce866afedf1aede3ddcfe9748e",
+  "files": 151,
+  "sha256": "ad87401991f661feaedf5888de98c2df3a61e16958281ecbbcdec92da411866f",
   "scope": "Explicit source/student-data allowlist. No credentials, runtime records, caches, learning notes or judges-only data. Not published."
 }

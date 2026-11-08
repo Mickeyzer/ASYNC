@@ -2,11 +2,13 @@
 
 A local prototype for the Airtel SYNC Enterprise Track A brief: business needs, a configurable estimate, consented document checks, demo checkout and saved order tracking. Accel Business and the supplied customer data are fictional.
 
+**Spicers | TIET:** Ishan Bhat and Gaurav Prakash Srivastava. [Watch the recorded demo](https://youtu.be/VdtKxBKpCHQ) or open the [final seven-slide submission files](submission/final/README.md). Supporting architecture and one-page privacy PDFs are included there. The repository is private; reviewers need authorized access.
+
 The redesigned frontend has a visible **Create account** entry, guided registration, a clearer business/service workspace and drag-and-drop document uploads. See [frontend and registration](docs/FRONTEND.md) for the interaction changes and keyboard/mobile checks.
 
 For teammate testing, fixes and final submission work, follow the [teammate acceptance checklist](docs/TEAMMATE_CHECKLIST.md). It covers every feature, expected results, live extraction/voice checks and the required handback evidence.
 
-Follow-up chat, account security, Hindi operations, partner/voice flows and the disabled WhatsApp guided channel are documented in [operations instructions](docs/OPERATIONS.md). See [synthetic business evidence](docs/BUSINESS_EVIDENCE.md) for reproducible segment analysis. [Submission drafts](submission/README.md) include the branded deck, architecture, one-page privacy PDF, controlled rehearsal and clean source archive.
+Follow-up chat, account security, Hindi operations, partner/voice flows and the disabled WhatsApp guided channel are documented in [operations instructions](docs/OPERATIONS.md). See [synthetic business evidence](docs/BUSINESS_EVIDENCE.md) for reproducible segment analysis. [Submission notes](submission/README.md) distinguish the final team video from the controlled rehearsal and describe the branded deck, architecture, privacy PDF and clean source archive.
 
 For a successful checkout test, use the [separately labelled DEMO01 development documents](demo_documents/checkout/README.md). They match the supplied mock registries; generation makes no provider calls, and live extraction still needs testing. The supplied K01-K12 files remain unchanged and contain Udyam inconsistencies or missing identifiers/documents that prevent an unchanged passing set under the current checks.
 

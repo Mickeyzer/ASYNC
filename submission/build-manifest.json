@@ -5,7 +5,11 @@
   "deck_pptx": "Udyam_Digital_Business_Case_7_Slides.pptx",
   "deck_pdf": "Udyam_Digital_Business_Case_7_Slides.pdf",
   "template": "Submission Template_Sync.pptx",
-  "status": "Reviewable draft; live-provider validation and final demo recording pending",
+  "status": "Final team-named artifacts built; video linked; user portal submission pending",
+  "final_directory": "final",
+  "final_basename": "Spicers_TIET",
+  "video_url": "https://youtu.be/VdtKxBKpCHQ",
+  "repository_url": "https://github.com/Mickeyzer/ASYNC",
   "pricing": {
     "monthly": 1624,
     "setup": 0,

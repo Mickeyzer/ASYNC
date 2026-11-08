@@ -4,6 +4,8 @@ import copy
 import html
 import json
 import re
+import hashlib
+import shutil
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -16,6 +18,11 @@ from backend.models import QuoteRequest
 from backend.quotes import quote
 
 OUT=ROOT/'submission'
+FINAL_BASENAME='Spicers_TIET'
+TEAM='Spicers | TIET'
+MEMBERS='Ishan Bhat | Gaurav Prakash Srivastava'
+LINKS=[('Watch demo', 'https://youtu.be/VdtKxBKpCHQ'),
+       ('Code repository', 'https://github.com/Mickeyzer/ASYNC')]
 TEMPLATE=ROOT/'6ad9d4887d445_airtel_sync/Submission Template_Sync.pptx'
 NS={'p':'http://schemas.openxmlformats.org/presentationml/2006/main',
     'a':'http://schemas.openxmlformats.org/drawingml/2006/main',
@@ -33,7 +40,7 @@ def content():
     professional=next(s for s in evidence['segments'] if s['segment']=='Professional offices')
     return [
       {'title':'Udyam Digital','lines':['From business needs to a tracked demo order',
-        'Self-serve acquisition with people for the exceptions','Enterprise Track A | Synthetic-data prototype'],
+        'Enterprise Track A | Accel Business prototype',TEAM,MEMBERS],
        'source':'Working local prototype. Payments, availability and activation are simulated.'},
       {'title':'Start where quote drop-off hurts','lines':[
         f"Only {evidence['activated']} of {evidence['leads']:,} supplied leads activated ({evidence['activation_rate']:.2%}).",
@@ -43,33 +50,35 @@ def content():
         'Value: an understandable bundle, visible fees, fewer document hand-offs and a saved status view.'],
        'source':'Source: supplied synthetic leads and brief. Segment priority is a proposed pilot choice, not proven optimal.'},
       {'title':'Compete on the complete journey','lines':[
-        'JioBusiness Solution: integrated connectivity, voice and digital services; bundles already exist.',
-        'Vi ReadyForNext: digital-readiness assessment, tailored report and service offers; advice already exists.',
-        'Case baseline: field-led discovery, 3-5-day quotes and document collection across channels.',
-        'Udyam combines reviewed Hindi/English discovery, editable quotes, mock KYC and a saved tracker.',
-        'Positioning hypothesis: reduce owner hand-offs, with consented partner help for exceptions.'],
-       'source':'Sources: JioBusiness / Vi official pages, checked 6 Nov 2026; docs/SUBMISSION_SOURCES.md. No full competitor-flow audit.'},
+        'Udyam: reviewed Hindi/English discovery -> editable quote -> mock KYC -> saved tracker.',
+        'Pilot hypothesis: fewer owner hand-offs, with consented partner help for exceptions.'],
+       'comparison':[
+         ['Comparator','Observed strength / case baseline','Our response for the pilot'],
+         ['JioBusiness Solution','Integrated connectivity, voice and digital services. Bundles already exist.','Compete on journey completion; do not claim bundling is new or cheaper.'],
+         ['Vi ReadyForNext','Digital-readiness assessment, tailored report and service offers. Advice already exists.','Carry reviewed needs into a catalogue quote and document checklist.'],
+         ['Case baseline','Field-led discovery, 3-5-day quotes and documents collected across channels.','Editable instant estimate, consented checks and one saved status view.']],
+       'source':'Official JioBusiness / Vi pages, checked 8 Nov 2026; case brief. No full competitor-flow audit or price comparison.'},
       {'title':'From business needs to an editable quote','lines':[
-        'Advisor drafts reviewed needs; catalogue rules control eligibility, dependencies and every price.',
+        'Create an account; use English/Hindi, typed needs or consented voice. Review the advisor draft.',
         'Tier-1 clinic, five staff: Biz Fibre 100 at INR 999 + five email seats at INR 125 each.',
         f"Monthly: INR {estimate['monthly_total']:,}. Setup: INR {estimate['setup_total']:,}. First month: INR {estimate['first_month_estimate']:,}. Taxes excluded.",
-        'Each service has a 12-month minimum contract; owner can edit quantities and add-ons.',
+        'Backend catalogue rules control eligibility, dependencies and prices. Edit quantities and add-ons; 12-month contracts.',
         'Review estimate, consent to four-document checks, then create and track a simulated order.'],
        'source':'Source: catalogue/quote code at build time. Starter bundle, not a budget optimizer or real commercial offer.'},
       {'title':'Rules, privacy and people protect trust','lines':[
         'React -> FastAPI -> catalogue/mock registries + SQLite. Consented Gemini drafts require review.',
-        'Separate consents for drafting, speech, documents and partner contact; images never saved.',
+        'Separate consents for drafting, speech, documents and partner contact; app does not persist uploaded images.',
         'Raw fields expire after 30 minutes or order submission; masked journey records after 24 hours.',
         'Account ownership and staff roles limit access. Partners see assigned, consented summaries only.',
         'Original inspection can resolve legibility; missing, expired or inconsistent evidence still blocks.'],
        'source':'Separate architecture diagram and one-page privacy note supplied. Mock checks use 15 July 2026; not compliance certification.'},
       {'title':'Rollout gates and risks','lines':[
-        'Now: working synthetic prototype; regression checks cover access, consent, navigation and recovery.',
-        'Provider risk: verify live extraction/voice; preserve inputs and guided fallback during outages.',
-        'Deployment risk: validate Docker/CI, managed identity, encrypted hosting and operating controls.',
+        'Now: working synthetic prototype and recorded demo; hosted CI covers API, browser and artifact checks.',
+        'Provider risk: guided fallback during outages; live extraction and microphone quality need broader evaluation.',
+        'Deployment gate: validate Docker, managed identity, encrypted hosting and operating controls before a pilot.',
         'Delivery risk: real availability, payment and provisioning need integrations; current stages are simulated.',
         'Next: invited professional-office pilot with partner support and a comparable baseline; WhatsApp stays disabled.'],
-       'source':'Proposed rollout, not a production-readiness claim. Acquisition heuristic rejected: top-fifth 7.00% vs 7.08% baseline.'},
+       'source':'Demo uses separately labelled DEMO01 synthetic documents; original specimens remain unchanged. No production-readiness claim.'},
       {'title':'Five proposed targets, not claimed results','lines':[
         'Lead-to-activation: historical 7.36%; proposed comparable-cohort target 10%.',
         'Mean lead-to-activation: 17.62 days; proposed target at most 12 days.',
@@ -80,7 +89,7 @@ def content():
     ]
 
 
-def textbox(identifier,x,y,w,h,paragraphs,size=1600,color='172A29',bold=False):
+def textbox(identifier,x,y,w,h,paragraphs,size=1600,color='172A29',bold=False,link_id=None):
     ns=NS
     shape=ET.Element(f"{{{ns['p']}}}sp")
     nv=ET.SubElement(shape,f"{{{ns['p']}}}nvSpPr")
@@ -102,6 +111,8 @@ def textbox(identifier,x,y,w,h,paragraphs,size=1600,color='172A29',bold=False):
         rp=ET.SubElement(run,f"{{{ns['a']}}}rPr",lang='en-US',sz=str(size),b='1' if bold else '0')
         fill=ET.SubElement(rp,f"{{{ns['a']}}}solidFill");ET.SubElement(fill,f"{{{ns['a']}}}srgbClr",val=color)
         ET.SubElement(rp,f"{{{ns['a']}}}latin",typeface='Arial')
+        if link_id:
+            ET.SubElement(rp,f"{{{ns['a']}}}hlinkClick",{f"{{{ns['r']}}}id":link_id})
         ET.SubElement(run,f"{{{ns['a']}}}t").text=line
     return shape
 
@@ -121,15 +132,26 @@ def pptx(slides):
         template=1 if index==1 else 2
         slide=ET.fromstring(files[f'ppt/slides/slide{template}.xml']);tree=slide.find('p:cSld/p:spTree',NS)
         if index==1:
-            tree.append(textbox(1001,.6,3.22,5.0,.7,[data['title']],3200,'FFFFFF',True))
-            tree.append(textbox(1002,.6,4.0,5.0,1.0,data['lines'],1400,'FFFFFF'))
+            tree.append(textbox(1001,.6,3.02,5.0,.6,[data['title']],3200,'FFFFFF',True))
+            tree.append(textbox(1002,.6,3.66,6.0,1.25,data['lines'],1300,'FFFFFF'))
+            for number,(label,url) in enumerate(LINKS):
+                tree.append(textbox(1010+number,.6+number*1.65,5.02,1.6,.3,[label],1250,'FFFFFF',True,link_id=f'rIdSubmission{number}'))
         else:
             tree.append(textbox(1001,.58,1.0,8.85,.75,[data['title']],2500,'BA261B',True))
-            tree.append(textbox(1002,.65,1.88,8.68,2.95,['• '+line for line in data['lines']],1500))
+            if 'comparison' in data:
+                for row,cells in enumerate(data['comparison']):
+                    for column,(x,width) in enumerate(((.65,1.45),(2.22,3.25),(5.65,3.55))):
+                        tree.append(textbox(1100+row*3+column,x,1.87+row*.56,width,.55,[cells[column]],1050 if row else 1100,'172A29' if row else 'BA261B',row==0))
+                tree.append(textbox(1002,.65,4.18,8.68,.65,data['lines'],1100))
+            else:
+                tree.append(textbox(1002,.65,1.88,8.68,2.95,['• '+line for line in data['lines']],1500))
             tree.append(textbox(1003,.65,4.9,8.0,.4,[data['source']],800,'596764'))
         slide_rels=ET.fromstring(files[f'ppt/slides/_rels/slide{template}.xml.rels'])
         for rel in list(slide_rels):
             if rel.get('Type','').endswith('/notesSlide'):slide_rels.remove(rel)
+        if index==1:
+            for number,(_,url) in enumerate(LINKS):
+                ET.SubElement(slide_rels,f"{{{NS['rel']}}}Relationship",Id=f'rIdSubmission{number}',Type=NS['r']+'/hyperlink',Target=url,TargetMode='External')
         outputs[f'ppt/slides/slide{index}.xml']=ET.tostring(slide,encoding='utf-8',xml_declaration=True)
         outputs[f'ppt/slides/_rels/slide{index}.xml.rels']=ET.tostring(slide_rels,encoding='utf-8',xml_declaration=True)
         ET.SubElement(listing,f"{{{NS['p']}}}sldId",{'id':str(255+index),f"{{{NS['r']}}}id":f'rId{100+index}'})
@@ -144,7 +166,7 @@ def pptx(slides):
             if node.tag.endswith('}Slides'):node.text=str(len(slides))
             if node.tag.endswith('}Notes'):node.text='0'
         outputs['docProps/app.xml']=ET.tostring(app_properties,encoding='utf-8',xml_declaration=True)
-    outputs['docProps/core.xml']=b'''<?xml version="1.0" encoding="UTF-8"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Udyam Digital business case</dc:title><dc:description>Synthetic-data prototype and proposed rollout. Reviewable draft.</dc:description></cp:coreProperties>'''
+    outputs['docProps/core.xml']=b'''<?xml version="1.0" encoding="UTF-8"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Spicers TIET - Udyam Digital</dc:title><dc:creator>Ishan Bhat; Gaurav Prakash Srivastava</dc:creator><dc:description>Seven-slide synthetic-data prototype business case and proposed rollout.</dc:description></cp:coreProperties>'''
     root_rels=ET.fromstring(outputs['_rels/.rels'])
     if not any(r.get('Type','').endswith('/metadata/core-properties') for r in root_rels):
         ET.SubElement(root_rels,f"{{{NS['rel']}}}Relationship",Id='rIdUdyamCore',Type=NS['rel']+'/metadata/core-properties',Target='docProps/core.xml')
@@ -157,19 +179,37 @@ def pptx(slides):
 
 
 def architecture():
-    nodes=[(60,150,'Customer web app','Hindi/English; reviewed voice'),(590,150,'FastAPI + account access','Ownership, roles, bounded work'),
-           (1110,150,'Gemini API','Consented text/image drafts'),(60,370,'Catalogue + mock registries','Deterministic rules and prices'),
-           (590,370,'Document and order workflow','Checks, review, explicit simulation'),(1110,370,'SQLite stores','Accounts, summaries and events'),
-           (60,590,'Assigned partner dashboard','Separate follow-up consent'),(590,590,'Authorized review','Actor, reason, evidence revision'),
-           (1110,590,'WhatsApp guided channel','Signed ingress; gated reply adapter')]
-    parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#a43425"/></marker></defs><rect width="1600" height="860" fill="#faf9f4"/><text x="60" y="62" font-family="Arial" font-size="34" fill="#173e37">Udyam Digital · architecture and trust boundaries</text><text x="60" y="105" font-family="Arial" font-size="21" fill="#566760">Synthetic local prototype · AI drafts fields; backend owns eligibility, pricing and order state</text>']
-    for d in ['M480 205H590','M1010 205H1110','M690 260V370','M270 370V315H740V260','M1010 425H1110',
-              'M270 590V535H690V480','M800 590V480','M1320 590V480']:
-        parts.append(f'<path d="{d}" fill="none" stroke="#a43425" stroke-width="3" marker-end="url(#arrow)"/>')
-    for x,y,title,subtitle in nodes:
-        parts.append(f'<rect x="{x}" y="{y}" width="420" height="110" rx="16" fill="white" stroke="#cfdbd3" stroke-width="2"/><text x="{x+22}" y="{y+43}" font-family="Arial" font-size="24" fill="#173e37">{html.escape(title)}</text><text x="{x+22}" y="{y+79}" font-family="Arial" font-size="19" fill="#566760">{html.escape(subtitle)}</text>')
-    parts.append('<text x="60" y="775" font-family="Arial" font-size="20" fill="#173e37">Retention: images never saved · raw fields 30 min · records 24 h · accounts / counters 30 d</text><text x="60" y="815" font-family="Arial" font-size="18" fill="#566760">Channel: encrypted answers 30 min idle / queued replies 10 min. No private record access. Payments and activation simulated.</text></svg>')
-    return ''.join(parts)
+    from scripts.architecture_diagram import render_architecture
+    return render_architecture()
+
+
+def final_package():
+    destination=OUT/'final';destination.mkdir(exist_ok=True)
+    files={f'{FINAL_BASENAME}.pptx':'Udyam_Digital_Business_Case_7_Slides.pptx',
+           f'{FINAL_BASENAME}.pdf':'Udyam_Digital_Business_Case_7_Slides.pdf',
+           'Architecture.pdf':'Architecture.pdf','Privacy_and_Security.pdf':'Privacy_and_Security.pdf'}
+    manifest={'team':'Spicers','campus':'TIET','members':['Ishan Bhat','Gaurav Prakash Srivastava'],
+              'video_url':LINKS[0][1],'repository_url':LINKS[1][1],
+              'maximum_file_bytes':20_000_000,'slides_including_cover':7,'files':{}}
+    for name,source in files.items():
+        target=destination/name;shutil.copyfile(OUT/source,target)
+        payload=target.read_bytes()
+        assert len(payload)<manifest['maximum_file_bytes'],f'{name} exceeds the 20 MB limit'
+        manifest['files'][name]={'bytes':len(payload),'sha256':hashlib.sha256(payload).hexdigest()}
+    (destination/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
+    (destination/'README.md').write_text(f'''# Spicers | TIET submission files
+
+Ishan Bhat and Gaurav Prakash Srivastava
+
+Upload **{FINAL_BASENAME}.pdf** and **{FINAL_BASENAME}.pptx** as requested by the portal. Each has seven slides including the cover and is below the reported 20 MB limit. Both contain clickable video and repository links on the cover. Use Architecture.pdf and the one-page Privacy_and_Security.pdf for the corresponding supporting fields, if provided.
+
+- [Recorded demo]({LINKS[0][1]})
+- [Source repository]({LINKS[1][1]})
+
+The repository is private; arrange authorized judge access before submitting its link. The final video was supplied by the team; it is separate from the controlled demo-rehearsal.webm. Automated playback and duration inspection were unavailable. The brief caps the video at three minutes.
+
+The demo uses separately labelled synthetic DEMO01 documents and simulated payment, availability and activation. Business targets are proposed, not measured uplift. No portal submission has been performed by these build scripts. Check the logged-in round, review the files, submit personally and retain confirmation.
+''',encoding='utf-8')
 
 
 def main():
@@ -179,11 +219,18 @@ def main():
         cover=source.read('ppt/media/image2.jpg');inside=source.read('ppt/media/image1.jpg')
     for name,data in [('cover.jpg',cover),('inside.jpg',inside)]: (OUT/'assets'/name).write_bytes(data)
     style='''@page{size:13.333333in 7.5in;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#173e37}.slide{width:1280px;height:720px;position:relative;break-after:page;background-size:cover;padding:125px 78px 70px;overflow:hidden}.slide:last-child{break-after:auto}h1{font-size:36px;color:#ba261b;line-height:1.13;margin:0 0 34px}li{font-size:23px;line-height:1.38;margin:0 0 19px}ul{padding-left:24px}footer{position:absolute;bottom:50px;left:83px;width:1050px;font-size:13px;color:#596764}.cover{padding:415px 72px 40px;color:white}.cover h1{font-size:48px;color:white;margin-bottom:12px}.cover p{font-size:22px;max-width:590px;margin:8px 0}.cover footer{display:none}'''
+    style+='''.cover{padding-top:385px}.cover p{font-size:21px;max-width:760px;margin:8px 0}.cover .links{margin-top:16px;display:flex;gap:30px}.cover a{color:white;font-size:20px;font-weight:bold;text-decoration:underline}table{border-collapse:collapse;width:100%;table-layout:fixed;margin:0 0 14px;font-size:18px;line-height:1.3}th,td{vertical-align:top;text-align:left;padding:12px 15px;border-bottom:1px solid #c9d3d0}th{color:#9f211b;background:#f4e9e7}th:first-child{width:18%}th:nth-child(2){width:39%}.comparison h1{margin-bottom:23px}.comparison li{font-size:19px;margin-bottom:10px}.comparison ul{margin-top:14px}'''
     sections=[]
     for i,slide in enumerate(slides):
-        if i==0:body='<h1>'+html.escape(slide['title'])+'</h1>'+''.join('<p>'+html.escape(line)+'</p>' for line in slide['lines'])
-        else:body='<h1>'+html.escape(slide['title'])+'</h1><ul>'+''.join('<li>'+html.escape(line)+'</li>' for line in slide['lines'])+'</ul>'
-        sections.append(f'<section class="slide {"cover" if i==0 else ""}" style="background-image:url(assets/{"cover" if i==0 else "inside"}.jpg)">{body}<footer>{html.escape(slide["source"])} · {i+1}/{len(slides)}</footer></section>')
+        if i==0:
+            body='<h1>'+html.escape(slide['title'])+'</h1>'+''.join('<p>'+html.escape(line)+'</p>' for line in slide['lines'])
+            body+='<div class="links">'+''.join(f'<a href="{html.escape(url)}">{html.escape(label)}</a>' for label,url in LINKS)+'</div>'
+        else:
+            body='<h1>'+html.escape(slide['title'])+'</h1>'
+            if 'comparison' in slide:
+                body+='<table>'+''.join('<tr>'+''.join(f'<{"th" if row==0 else "td"}>{html.escape(cell)}</{"th" if row==0 else "td"}>' for cell in cells)+'</tr>' for row,cells in enumerate(slide['comparison']))+'</table>'
+            body+='<ul>'+''.join('<li>'+html.escape(line)+'</li>' for line in slide['lines'])+'</ul>'
+        sections.append(f'<section class="slide {"cover" if i==0 else "comparison" if "comparison" in slide else ""}" style="background-image:url(assets/{"cover" if i==0 else "inside"}.jpg)">{body}<footer>{html.escape(slide["source"])} · {i+1}/{len(slides)}</footer></section>')
     deck='<!doctype html><html lang="en"><meta charset="utf-8"><title>Udyam Digital business case</title><style>'+style+'</style><body>'+''.join(sections)+'</body></html>'
     (OUT/'business-case.html').write_text(deck,encoding='utf-8')
     svg=architecture();(OUT/'architecture.svg').write_text(svg,encoding='utf-8')
@@ -204,15 +251,17 @@ def main():
         assert page.locator('.slide').evaluate_all('(nodes)=>nodes.every(n=>n.scrollHeight<=n.clientHeight && n.scrollWidth<=n.clientWidth)')
         page.goto((OUT/'privacy.html').as_uri());page.pdf(path=str(OUT/'Privacy_and_Security.pdf'),prefer_css_page_size=True,print_background=True)
         page.screenshot(path=str(OUT/'assets/privacy-preview.png'),full_page=True)
-        page.set_content('<style>@page{size:16in 8.6in;margin:0}body{margin:0}svg{display:block;width:100%;height:auto}</style>'+svg)
-        page.pdf(path=str(OUT/'Architecture.pdf'),prefer_css_page_size=True,print_background=True)
         browser.close()
+    from scripts.architecture_diagram import write_architecture
+    write_architecture(OUT)
     assert len(PdfReader(OUT/'Udyam_Digital_Business_Case_7_Slides.pdf').pages)==7
     assert len(PdfReader(OUT/'Privacy_and_Security.pdf').pages)==1
     assert len(PdfReader(OUT/'Architecture.pdf').pages)==1
+    final_package()
     (OUT/'build-manifest.json').write_text(json.dumps({'slides':7,'privacy_pages':1,'architecture_pages':1,
         'deck_pptx':'Udyam_Digital_Business_Case_7_Slides.pptx','deck_pdf':'Udyam_Digital_Business_Case_7_Slides.pdf',
-        'template':TEMPLATE.name,'status':'Reviewable draft; live-provider validation and final demo recording pending',
+        'template':TEMPLATE.name,'status':'Final team-named artifacts built; video linked; user portal submission pending',
+        'final_directory':'final','final_basename':FINAL_BASENAME,'video_url':LINKS[0][1],'repository_url':LINKS[1][1],
         'pricing':{'monthly':1624,'setup':0,'taxes':'excluded'},'sources':['smb_leads.csv','product_catalogue.csv','docs/PRIVACY.md','current application code','docs/SUBMISSION_SOURCES.md']},indent=2),encoding='utf-8')
     print('Built and checked: 7-slide editable PPTX + PDF, one-page privacy PDF and one-page architecture PDF/SVG. Review before submission.')
 

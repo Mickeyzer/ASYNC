@@ -3,62 +3,62 @@
     {
       "check": "frontend",
       "status": "passed",
-      "seconds": 2.97
+      "seconds": 10.08
     },
     {
       "check": "submission",
       "status": "passed",
-      "seconds": 5.2
+      "seconds": 3.81
     },
     {
       "check": "source_package",
       "status": "passed",
-      "seconds": 1.56
+      "seconds": 0.61
     },
     {
       "check": "backend",
       "status": "passed",
-      "seconds": 39.95,
-      "tests_passed": 157
+      "seconds": 25.23,
+      "tests_passed": 158
     },
     {
       "check": "core_browser",
       "status": "passed",
-      "seconds": 7.61,
-      "scenario_groups": 20
+      "seconds": 6.56,
+      "scenario_groups": 24
     },
     {
       "check": "onboarding_browser",
       "status": "passed",
-      "seconds": 6.42,
-      "scenario_groups": 12
+      "seconds": 5.19,
+      "scenario_groups": 17
     },
     {
       "check": "operations_browser",
       "status": "passed",
-      "seconds": 7.44,
+      "seconds": 5.64,
       "scenario_groups": 18
     },
     {
       "check": "conversation_security_browser",
       "status": "passed",
-      "seconds": 6.7,
+      "seconds": 4.94,
       "scenario_groups": 11
     },
     {
       "check": "design_browser",
       "status": "passed",
-      "seconds": 6.61,
+      "seconds": 5.2,
       "scenario_groups": 16
     }
   ],
   "all_passed": true,
   "provider_calls": "Controlled SDK/browser fixtures only; no live quality claim",
   "pending_external_checks": [
-    "live image extraction and microphone/language quality",
+    "broader live image extraction and microphone/language quality",
     "Docker image/runtime",
-    "hosted CI",
-    "live WhatsApp/provider setup"
+    "production identity, hosting and operator integrations"
   ],
+  "hosted_ci": "Tracked separately in GitHub Actions for the pushed commit",
   "scope": "Local synthetic-data prototype. No real payment, provisioning, public deployment or submission performed."
 }

@@ -17,7 +17,8 @@ def main():
     commands=[('frontend',[npm,'run','build','--prefix','frontend']),
               ('submission',[sys.executable,'scripts/build_submission.py']),
               ('source_package',[sys.executable,'scripts/package_source.py']),
-              ('backend',[sys.executable,'-m','pytest','-q']),
+              ('backend',[sys.executable,'-m','pytest','-q','-p','no:cacheprovider',
+                          '--basetemp',str(ROOT/'artifacts'/f'pytest-{time.time_ns()}')]),
               ('core_browser',[sys.executable,'tests/browser_core_check.py']),
               ('onboarding_browser',[sys.executable,'tests/browser_onboarding_check.py']),
               ('operations_browser',[sys.executable,'tests/browser_operations_check.py']),
@@ -43,7 +44,8 @@ def main():
         results.append(result)
         report={'checks':results,'all_passed':all(r['status']=='passed' for r in results) and len(results)==len(commands),
                 'provider_calls':'Controlled SDK/browser fixtures only; no live quality claim',
-                'pending_external_checks':['live image extraction and microphone/language quality','Docker image/runtime','hosted CI','live WhatsApp/provider setup'],
+                'pending_external_checks':['broader live image extraction and microphone/language quality','Docker image/runtime','production identity, hosting and operator integrations'],
+                'hosted_ci':'Tracked separately in GitHub Actions for the pushed commit',
                 'scope':'Local synthetic-data prototype. No real payment, provisioning, public deployment or submission performed.'}
         (OUT/'verification-report.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
         print(f'{name}: {status}',flush=True)

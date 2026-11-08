@@ -68,3 +68,29 @@ def test_source_archive_contains_required_code_and_no_private_runtime_material()
         manifest=json.loads(archive.read('PACKAGE_MANIFEST.json'))
         assert set(manifest)==names-{'PACKAGE_MANIFEST.json'}
         assert all(hashlib.sha256(archive.read(name)).hexdigest()==digest for name,digest in manifest.items())
+
+
+def test_final_named_files_and_clickable_submission_links():
+    final=OUT/'final'
+    links={'https://youtu.be/VdtKxBKpCHQ','https://github.com/Mickeyzer/ASYNC'}
+    for suffix in ('pptx','pdf'):
+        path=final/f'Spicers_TIET.{suffix}'
+        assert 0<path.stat().st_size<20_000_000
+        assert path.read_bytes()==(OUT/f'Udyam_Digital_Business_Case_7_Slides.{suffix}').read_bytes()
+    with ZipFile(final/'Spicers_TIET.pptx') as archive:
+        relationships=ET.fromstring(archive.read('ppt/slides/_rels/slide1.xml.rels'))
+        targets={r.get('Id'):r.get('Target') for r in relationships if r.get('TargetMode')=='External'}
+        slide=ET.fromstring(archive.read('ppt/slides/slide1.xml'))
+        clickable={targets[node.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id')]
+                   for node in slide.iter() if node.tag.endswith('}hlinkClick')}
+        assert links<=clickable
+        text=' '.join(node.text or '' for node in slide.iter() if node.tag.endswith('}t'))
+        assert all(name in text for name in ('Spicers','TIET','Ishan Bhat','Gaurav Prakash Srivastava'))
+    pdf=PdfReader(final/'Spicers_TIET.pdf')
+    annotations=[annotation.get_object() for annotation in pdf.pages[0].get('/Annots',[])]
+    assert links<={str(annotation.get('/A',{}).get('/URI','')) for annotation in annotations}
+    manifest=json.loads((final/'manifest.json').read_text())
+    for name,details in manifest['files'].items():
+        payload=(final/name).read_bytes()
+        assert len(payload)==details['bytes']
+        assert hashlib.sha256(payload).hexdigest()==details['sha256']
