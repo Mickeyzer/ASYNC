@@ -23,6 +23,9 @@ TEAM='Spicers | TIET'
 MEMBERS='Ishan Bhat | Gaurav Prakash Srivastava'
 LINKS=[('Watch demo', 'https://youtu.be/VdtKxBKpCHQ'),
        ('Code repository', 'https://github.com/Mickeyzer/ASYNC')]
+SUPPORTING_LINKS=[
+    ('Full architecture (PDF)', 'https://github.com/Mickeyzer/ASYNC/blob/main/submission/final/Architecture.pdf'),
+    ('Privacy and security note (PDF)', 'https://github.com/Mickeyzer/ASYNC/blob/main/submission/final/Privacy_and_Security.pdf')]
 TEMPLATE=ROOT/'6ad9d4887d445_airtel_sync/Submission Template_Sync.pptx'
 NS={'p':'http://schemas.openxmlformats.org/presentationml/2006/main',
     'a':'http://schemas.openxmlformats.org/drawingml/2006/main',
@@ -71,7 +74,8 @@ def content():
         'Raw fields expire after 30 minutes or order submission; masked journey records after 24 hours.',
         'Account ownership and staff roles limit access. Partners see assigned, consented summaries only.',
         'Original inspection can resolve legibility; missing, expired or inconsistent evidence still blocks.'],
-       'source':'Separate architecture diagram and one-page privacy note supplied. Mock checks use 15 July 2026; not compliance certification.'},
+       'links':SUPPORTING_LINKS,
+       'source':'Open the full supporting PDFs above. Mock checks use 15 July 2026; not compliance certification.'},
       {'title':'Rollout gates and risks','lines':[
         'Now: working synthetic prototype and recorded demo; hosted CI covers API, browser and artifact checks.',
         'Provider risk: guided fallback during outages; live extraction and microphone quality need broader evaluation.',
@@ -146,12 +150,16 @@ def pptx(slides):
             else:
                 tree.append(textbox(1002,.65,1.88,8.68,2.95,['• '+line for line in data['lines']],1500))
             tree.append(textbox(1003,.65,4.9,8.0,.4,[data['source']],800,'596764'))
+            for number,(label,_) in enumerate(data.get('links',[])):
+                tree.append(textbox(1020+number,.65+number*3.1,4.53,3.0,.28,[label],1150,'BA261B',True,link_id=f'rIdSupporting{number}'))
         slide_rels=ET.fromstring(files[f'ppt/slides/_rels/slide{template}.xml.rels'])
         for rel in list(slide_rels):
             if rel.get('Type','').endswith('/notesSlide'):slide_rels.remove(rel)
         if index==1:
             for number,(_,url) in enumerate(LINKS):
                 ET.SubElement(slide_rels,f"{{{NS['rel']}}}Relationship",Id=f'rIdSubmission{number}',Type=NS['r']+'/hyperlink',Target=url,TargetMode='External')
+        for number,(_,url) in enumerate(data.get('links',[])):
+            ET.SubElement(slide_rels,f"{{{NS['rel']}}}Relationship",Id=f'rIdSupporting{number}',Type=NS['r']+'/hyperlink',Target=url,TargetMode='External')
         outputs[f'ppt/slides/slide{index}.xml']=ET.tostring(slide,encoding='utf-8',xml_declaration=True)
         outputs[f'ppt/slides/_rels/slide{index}.xml.rels']=ET.tostring(slide_rels,encoding='utf-8',xml_declaration=True)
         ET.SubElement(listing,f"{{{NS['p']}}}sldId",{'id':str(255+index),f"{{{NS['r']}}}id":f'rId{100+index}'})
@@ -190,6 +198,7 @@ def final_package():
            'Architecture.pdf':'Architecture.pdf','Privacy_and_Security.pdf':'Privacy_and_Security.pdf'}
     manifest={'team':'Spicers','campus':'TIET','members':['Ishan Bhat','Gaurav Prakash Srivastava'],
               'video_url':LINKS[0][1],'repository_url':LINKS[1][1],
+              'supporting_document_urls':dict(SUPPORTING_LINKS),
               'maximum_file_bytes':20_000_000,'slides_including_cover':7,'files':{}}
     for name,source in files.items():
         target=destination/name;shutil.copyfile(OUT/source,target)
@@ -201,10 +210,12 @@ def final_package():
 
 Ishan Bhat and Gaurav Prakash Srivastava
 
-Upload **{FINAL_BASENAME}.pdf** and **{FINAL_BASENAME}.pptx** as requested by the portal. Each has seven slides including the cover and is below the reported 20 MB limit. Both contain clickable video and repository links on the cover. Use Architecture.pdf and the one-page Privacy_and_Security.pdf for the corresponding supporting fields, if provided.
+Upload **{FINAL_BASENAME}.pdf** and **{FINAL_BASENAME}.pptx** in the two slide-upload fields shown by the portal. Each has seven slides including the cover and is below the reported 20 MB limit. Both contain clickable video and repository links on the cover, plus direct architecture/privacy PDF links on slide 5. The supporting PDFs remain separate files in this repository; no extra slides have been appended. This packages the brief's supporting deliverables for access through the available fields, without claiming an organizer-approved exception.
 
 - [Recorded demo]({LINKS[0][1]})
 - [Source repository]({LINKS[1][1]})
+- [Full architecture PDF]({SUPPORTING_LINKS[0][1]})
+- [One-page privacy/security note]({SUPPORTING_LINKS[1][1]})
 
 The repository is private; arrange authorized judge access before submitting its link. The final video was supplied by the team; it is separate from the controlled demo-rehearsal.webm. Automated playback and duration inspection were unavailable. The brief caps the video at three minutes.
 
@@ -220,6 +231,7 @@ def main():
     for name,data in [('cover.jpg',cover),('inside.jpg',inside)]: (OUT/'assets'/name).write_bytes(data)
     style='''@page{size:13.333333in 7.5in;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#173e37}.slide{width:1280px;height:720px;position:relative;break-after:page;background-size:cover;padding:125px 78px 70px;overflow:hidden}.slide:last-child{break-after:auto}h1{font-size:36px;color:#ba261b;line-height:1.13;margin:0 0 34px}li{font-size:23px;line-height:1.38;margin:0 0 19px}ul{padding-left:24px}footer{position:absolute;bottom:50px;left:83px;width:1050px;font-size:13px;color:#596764}.cover{padding:415px 72px 40px;color:white}.cover h1{font-size:48px;color:white;margin-bottom:12px}.cover p{font-size:22px;max-width:590px;margin:8px 0}.cover footer{display:none}'''
     style+='''.cover{padding-top:385px}.cover p{font-size:21px;max-width:760px;margin:8px 0}.cover .links{margin-top:16px;display:flex;gap:30px}.cover a{color:white;font-size:20px;font-weight:bold;text-decoration:underline}table{border-collapse:collapse;width:100%;table-layout:fixed;margin:0 0 14px;font-size:18px;line-height:1.3}th,td{vertical-align:top;text-align:left;padding:12px 15px;border-bottom:1px solid #c9d3d0}th{color:#9f211b;background:#f4e9e7}th:first-child{width:18%}th:nth-child(2){width:39%}.comparison h1{margin-bottom:23px}.comparison li{font-size:19px;margin-bottom:10px}.comparison ul{margin-top:14px}'''
+    style+='''.supporting-links{position:absolute;left:83px;bottom:93px;display:flex;gap:34px;font-size:18px;font-weight:bold}.supporting-links a{color:#9f211b;text-decoration:underline}'''
     sections=[]
     for i,slide in enumerate(slides):
         if i==0:
@@ -230,6 +242,8 @@ def main():
             if 'comparison' in slide:
                 body+='<table>'+''.join('<tr>'+''.join(f'<{"th" if row==0 else "td"}>{html.escape(cell)}</{"th" if row==0 else "td"}>' for cell in cells)+'</tr>' for row,cells in enumerate(slide['comparison']))+'</table>'
             body+='<ul>'+''.join('<li>'+html.escape(line)+'</li>' for line in slide['lines'])+'</ul>'
+            if slide.get('links'):
+                body+='<div class="supporting-links">'+''.join(f'<a href="{html.escape(url)}">{html.escape(label)}</a>' for label,url in slide['links'])+'</div>'
         sections.append(f'<section class="slide {"cover" if i==0 else "comparison" if "comparison" in slide else ""}" style="background-image:url(assets/{"cover" if i==0 else "inside"}.jpg)">{body}<footer>{html.escape(slide["source"])} · {i+1}/{len(slides)}</footer></section>')
     deck='<!doctype html><html lang="en"><meta charset="utf-8"><title>Udyam Digital business case</title><style>'+style+'</style><body>'+''.join(sections)+'</body></html>'
     (OUT/'business-case.html').write_text(deck,encoding='utf-8')

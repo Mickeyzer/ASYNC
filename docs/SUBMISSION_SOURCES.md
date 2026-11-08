@@ -10,6 +10,8 @@ The team supplied the final [video hyperlink](https://youtu.be/VdtKxBKpCHQ), inc
 
 The local `Airtel_SYNC_Case.pdf`, page 4, sets a looser business-case cap of ten slides and separately asks for a prototype video of at most three minutes, code repository, architecture diagram and one-page privacy/security note. The current deck follows the stricter seven-slide instruction.
 
+The user reports only PDF/PPT slide-upload fields in the logged-in form. The deck therefore includes direct links to both supporting PDFs on slide 5, with video/repository links on the cover. The architecture and privacy note remain separate files in submission/final/; no appendix slides are added. This is a packaging choice for the visible fields, not a claim that organizers expressly approved links as a substitute for separate uploads. Private repository access must be arranged for judges.
+
 The supplied `Submission Template_Sync.pptx` has two branded slides with no editable section instructions or notes. Neither the inspected case PDF nor public listing prescribes the current bullet layout. Keeping its branding while customizing internal layouts is the conservative design choice; the logged-in submission form or direct organizer instructions may contain additional rules. No permission to discard branding entirely has been established.
 
 ## Competitive positioning, slide 3

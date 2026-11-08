@@ -7,24 +7,28 @@
   ],
   "video_url": "https://youtu.be/VdtKxBKpCHQ",
   "repository_url": "https://github.com/Mickeyzer/ASYNC",
+  "supporting_document_urls": {
+    "Full architecture (PDF)": "https://github.com/Mickeyzer/ASYNC/blob/main/submission/final/Architecture.pdf",
+    "Privacy and security note (PDF)": "https://github.com/Mickeyzer/ASYNC/blob/main/submission/final/Privacy_and_Security.pdf"
+  },
   "maximum_file_bytes": 20000000,
   "slides_including_cover": 7,
   "files": {
     "Spicers_TIET.pptx": {
-      "bytes": 1363952,
-      "sha256": "51b1ea04af61530468f55de919728f1f1ccf068e65d647e6eb9ff5540318ef7b"
+      "bytes": 1364170,
+      "sha256": "c46ca8c6a6fe8e526807bdfbd06df6523cf3460e4743948bc1ef88455fee6919"
     },
     "Spicers_TIET.pdf": {
-      "bytes": 1428191,
-      "sha256": "42122b24a005e93ff771538e10786df9c3c73e6415df8c3587cd5fab3db92e27"
+      "bytes": 1429429,
+      "sha256": "521b8f891b60d199c13cdc13a12bc67a6edc137dff48c58008858831f5f58a2f"
     },
     "Architecture.pdf": {
       "bytes": 91557,
-      "sha256": "5a8684d79d38984fb077673ac29e8ca9c4c7dc5cc49258a8e7347aac8570cd80"
+      "sha256": "8349e72da379737febf455ca508b1e1d250987b8e1692dc9da8731ef8e707173"
     },
     "Privacy_and_Security.pdf": {
       "bytes": 54507,
-      "sha256": "fad42cdaca4eaa8d4316cb02c08df53b75177b8e43228df8ae8d0a7d2ac1bfb2"
+      "sha256": "3dcd8e8dccaaf7cb95b93883c6d357226100fe19def4dde5a49a631a255a8459"
     }
   }
 }

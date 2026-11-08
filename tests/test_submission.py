@@ -86,9 +86,22 @@ def test_final_named_files_and_clickable_submission_links():
         assert links<=clickable
         text=' '.join(node.text or '' for node in slide.iter() if node.tag.endswith('}t'))
         assert all(name in text for name in ('Spicers','TIET','Ishan Bhat','Gaurav Prakash Srivastava'))
+        supporting={
+            'https://github.com/Mickeyzer/ASYNC/blob/main/submission/final/Architecture.pdf',
+            'https://github.com/Mickeyzer/ASYNC/blob/main/submission/final/Privacy_and_Security.pdf'}
+        relationships=ET.fromstring(archive.read('ppt/slides/_rels/slide5.xml.rels'))
+        targets={r.get('Id'):r.get('Target') for r in relationships if r.get('TargetMode')=='External'}
+        slide=ET.fromstring(archive.read('ppt/slides/slide5.xml'))
+        clickable={targets[node.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id')]
+                   for node in slide.iter() if node.tag.endswith('}hlinkClick')}
+        assert supporting<=clickable
     pdf=PdfReader(final/'Spicers_TIET.pdf')
     annotations=[annotation.get_object() for annotation in pdf.pages[0].get('/Annots',[])]
     assert links<={str(annotation.get('/A',{}).get('/URI','')) for annotation in annotations}
+    annotations=[annotation.get_object() for annotation in pdf.pages[4].get('/Annots',[])]
+    assert supporting<={str(annotation.get('/A',{}).get('/URI','')) for annotation in annotations}
+    for url in supporting:
+        assert (ROOT/url.split('/blob/main/',1)[1]).is_file()
     manifest=json.loads((final/'manifest.json').read_text())
     for name,details in manifest['files'].items():
         payload=(final/name).read_bytes()
